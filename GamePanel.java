@@ -118,7 +118,7 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     private void increaseDifficulty() {
-        gameSpeed = 5 + (score.getScore() / 200);
+        gameSpeed = 5 + (int) (score.getScore() * 0.05);
 
         for (Obstacle obs : obstacles) {
             obs.setSpeed(gameSpeed);
@@ -245,11 +245,11 @@ public class GamePanel extends JPanel implements ActionListener {
 
     // private void addNewObstacle() {
 
-    //     if (random.nextBoolean()) {
-    //         obstacles.add(new SmallCactus(800, 250, gameSpeed));
-    //     } else {
-    //         obstacles.add(new TallCactus(800));
-    //     }
+    // if (random.nextBoolean()) {
+    // obstacles.add(new SmallCactus(800, 250, gameSpeed));
+    // } else {
+    // obstacles.add(new TallCactus(800));
+    // }
     // }
 
     private void updateScoreFromObstacles() {
