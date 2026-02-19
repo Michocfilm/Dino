@@ -10,6 +10,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private int gameSpeed = 5;
     // private int lastSpawnX = 800;
     private final int MIN_SAFE_DISTANCE = 180;
+    private int clusterCount = 0;
 
     private final int WIDTH = 800;
     private final int HEIGHT = 400;
@@ -128,37 +129,40 @@ public class GamePanel extends JPanel implements ActionListener {
     private void spawnObstacle() {
 
         if (obstacles.isEmpty()) {
-            obstacles.add(createRandomObstacle(getWidth()));
+            obstacles.add(createRandomObstacle(WIDTH));
             return;
         }
 
         Obstacle last = obstacles.get(obstacles.size() - 1);
 
-        // 🔹 ระยะขั้นต่ำที่กระโดดทัน (อย่าต่ำกว่านี้)
-        int minGap = 110;
-
-        // 🔹 ระยะสูงสุดจะลดลงเมื่อความเร็วเพิ่ม
-        int maxGap = 250 - (gameSpeed * 5);
-
-        // กัน maxGap ต่ำเกิน
-        if (maxGap < minGap + 40) {
-            maxGap = minGap + 40;
-        }
+        // รอให้ตัวสุดท้ายเข้ามาในจอก่อน
+        if (last.getX() > WIDTH - 250)
+            return;
 
         int gap;
 
-        // 🔥 25% โอกาสเกิดแบบชิดมาก (ดักกระโดดซ้ำ)
-        if (random.nextInt(4) == 0) {
-            gap = minGap + random.nextInt(30); // ใกล้มาก
+        // 🔴 ถ้าอยู่ในช่วง cluster (ถี่)
+        if (clusterCount > 0) {
+            gap = 100 + random.nextInt(40); // ใกล้ ๆ
+            clusterCount--;
         } else {
-            gap = random.nextInt(maxGap - minGap) + minGap;
+
+            int mode = random.nextInt(5);
+
+            if (mode == 0) {
+                // 🔵 เว้นยาว
+                gap = 350 + random.nextInt(150);
+            } else if (mode <= 2) {
+                // 🔴 เริ่ม cluster 2-3 อัน
+                clusterCount = 2 + random.nextInt(2);
+                gap = 110 + random.nextInt(40);
+            } else {
+                // 🟢 ปกติ
+                gap = 180 + random.nextInt(120);
+            }
         }
 
-        int spawnX = last.getX() + last.getWidth() + gap;
-
-        if (spawnX < WIDTH + 200) {
-            obstacles.add(createRandomObstacle(spawnX));
-        }
+        obstacles.add(createRandomObstacle(WIDTH + gap));
     }
 
     private void createButtons() {
