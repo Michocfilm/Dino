@@ -134,19 +134,29 @@ public class GamePanel extends JPanel implements ActionListener {
 
         Obstacle last = obstacles.get(obstacles.size() - 1);
 
-        // คำนวณ safe distance ตามความเร็ว
-        int safeDistance = gameSpeed * 35;
+        // 🔹 ระยะขั้นต่ำที่กระโดดทัน (อย่าต่ำกว่านี้)
+        int minGap = 110;
 
-        // สุ่มเพิ่มความหลากหลาย
-        int randomGap = random.nextInt(200);
+        // 🔹 ระยะสูงสุดจะลดลงเมื่อความเร็วเพิ่ม
+        int maxGap = 250 - (gameSpeed * 5);
 
-        int gap = safeDistance + randomGap;
+        // กัน maxGap ต่ำเกิน
+        if (maxGap < minGap + 40) {
+            maxGap = minGap + 40;
+        }
 
-        // ตำแหน่ง spawn จริง
+        int gap;
+
+        // 🔥 25% โอกาสเกิดแบบชิดมาก (ดักกระโดดซ้ำ)
+        if (random.nextInt(4) == 0) {
+            gap = minGap + random.nextInt(30); // ใกล้มาก
+        } else {
+            gap = random.nextInt(maxGap - minGap) + minGap;
+        }
+
         int spawnX = last.getX() + last.getWidth() + gap;
 
-        // สร้างเมื่อ obstacle ล่าสุดเลยจอไปพอสมควร
-        if (spawnX < WIDTH + 300) {
+        if (spawnX < WIDTH + 200) {
             obstacles.add(createRandomObstacle(spawnX));
         }
     }
