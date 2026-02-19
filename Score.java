@@ -14,8 +14,18 @@ public class Score {
 
     public void draw(Graphics g) {
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Score: " + score, 650, 30);
+        Font font = new Font("Arial", Font.BOLD, 24);
+        g.setFont(font);
+
+        String text = "Score: " + score;
+
+        FontMetrics fm = g.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+
+        int x = 1000 - textWidth - 20; // WIDTH - margin
+        int y = 40;
+
+        g.drawString(text, x, y);
     }
 
     public void addPoint() {

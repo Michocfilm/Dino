@@ -11,11 +11,12 @@ public class Dinosaur {
     private int velocityY = 0;
     private boolean jumping = false;
     private final int gravity = 1;
-    private final int ground = 250;
+    private int ground;
 
-    public Dinosaur(int x, int y) {
+    public Dinosaur(int x, int groundY) {
         this.x = x;
-        this.y = y;
+        this.ground = groundY;
+        this.y = groundY - height; // ให้ฐานติดพื้น
     }
 
     public void jump() {
@@ -29,8 +30,8 @@ public class Dinosaur {
         y += velocityY;
         velocityY += gravity;
 
-        if (y >= ground) {
-            y = ground;
+        if (y >= ground - height) {
+            y = ground - height;
             jumping = false;
         }
 
@@ -75,10 +76,13 @@ public class Dinosaur {
     public int getX() {
         return x;
     }
-    public double getInvincibletTimeRemainingRatio(){
-        if(!invincible) return 0;
+
+    public double getInvincibletTimeRemainingRatio() {
+        if (!invincible)
+            return 0;
         long remaining = invincibleEndTime - System.currentTimeMillis();
-        if(remaining <= 0) return 0;
+        if (remaining <= 0)
+            return 0;
         return remaining / 3000.0;
     }
 

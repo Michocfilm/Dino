@@ -1,9 +1,9 @@
 import java.awt.*;
 
 public class InvincibleItem extends PowerUp {
-
-    public InvincibleItem(int x) {
-        super(x, 250, 20);
+    private static final int ITEM_SIZE = 20;
+    public InvincibleItem(int x, int groundY) {
+        super(x, groundY - ITEM_SIZE - 20, ITEM_SIZE);
     }
 
     @Override
