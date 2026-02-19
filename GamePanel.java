@@ -9,6 +9,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private Score score;
     private int gameSpeed = 5;
     // private int lastSpawnX = 800;
+    private final int MIN_SAFE_DISTANCE = 180;
 
     private final int WIDTH = 800;
     private final int HEIGHT = 400;
@@ -61,7 +62,6 @@ public class GamePanel extends JPanel implements ActionListener {
         dino.update();
         // score.update();
         updateScoreFromObstacles();
-
 
         increaseDifficulty();
         updateObstacles();
@@ -128,17 +128,26 @@ public class GamePanel extends JPanel implements ActionListener {
     private void spawnObstacle() {
 
         if (obstacles.isEmpty()) {
-            addNewObstacle();
+            obstacles.add(createRandomObstacle(getWidth()));
             return;
         }
 
         Obstacle last = obstacles.get(obstacles.size() - 1);
 
-        int minGap = gameSpeed * 30; // 30 คือ airTimeFrames
-        int randomGap = minGap + random.nextInt(150);
+        // คำนวณ safe distance ตามความเร็ว
+        int safeDistance = gameSpeed * 35;
 
-        if (last.getX() < WIDTH - randomGap) {
-            addNewObstacle();
+        // สุ่มเพิ่มความหลากหลาย
+        int randomGap = random.nextInt(200);
+
+        int gap = safeDistance + randomGap;
+
+        // ตำแหน่ง spawn จริง
+        int spawnX = last.getX() + last.getWidth() + gap;
+
+        // สร้างเมื่อ obstacle ล่าสุดเลยจอไปพอสมควร
+        if (spawnX < WIDTH + 300) {
+            obstacles.add(createRandomObstacle(spawnX));
         }
     }
 
@@ -170,7 +179,7 @@ public class GamePanel extends JPanel implements ActionListener {
         startButton.setVisible(false);
 
         obstacles.clear();
-        obstacles.add(new SmallCactus(800));
+        obstacles.add(new SmallCactus(800, 250, gameSpeed));
 
         timer.start();
         requestFocusInWindow(); // ให้กด space ได้
@@ -182,7 +191,7 @@ public class GamePanel extends JPanel implements ActionListener {
         dino = new Dinosaur(100, 250);
         obstacles.clear();
         powerUps.clear();
-        obstacles.add(new SmallCactus(800));
+        obstacles.add(new SmallCactus(800, 250, gameSpeed));
 
         gameOver = false;
         gameRunning = true;
@@ -234,14 +243,14 @@ public class GamePanel extends JPanel implements ActionListener {
 
     }
 
-    private void addNewObstacle() {
+    // private void addNewObstacle() {
 
-        if (random.nextBoolean()) {
-            obstacles.add(new SmallCactus(800));
-        } else {
-            obstacles.add(new TallCactus(800));
-        }
-    }
+    //     if (random.nextBoolean()) {
+    //         obstacles.add(new SmallCactus(800, 250, gameSpeed));
+    //     } else {
+    //         obstacles.add(new TallCactus(800));
+    //     }
+    // }
 
     private void updateScoreFromObstacles() {
 
@@ -253,6 +262,14 @@ public class GamePanel extends JPanel implements ActionListener {
                 score.addPoint();
                 obs.setScored(true);
             }
+        }
+    }
+
+    private Obstacle createRandomObstacle(int x) {
+        if (random.nextBoolean()) {
+            return new SmallCactus(x, 250, gameSpeed);
+        } else {
+            return new TallCactus(x, 230, gameSpeed);
         }
     }
 

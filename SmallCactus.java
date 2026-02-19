@@ -2,8 +2,8 @@ import java.awt.*;
 
 public class SmallCactus extends Obstacle {
 
-    public SmallCactus(int x) {
-        super(x, 270, 20, 40);
+    public SmallCactus(int x, int y, int speed) {
+        super(x, y, 20, 40, speed);
     }
 
     @Override

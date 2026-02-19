@@ -7,11 +7,12 @@ public abstract class Obstacle {
     protected int speed = 5;
     protected boolean scored = false;
 
-    public Obstacle(int x, int y, int w, int h) {
+    public Obstacle(int x, int y, int width, int height, int speed) {
         this.x = x;
         this.y = y;
-        this.width = w;
-        this.height = h;
+        this.width = width;
+        this.height = height;
+        this.speed = speed;
     }
 
     public void update() {
