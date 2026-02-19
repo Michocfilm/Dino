@@ -28,11 +28,23 @@ public class GamePanel extends JPanel implements ActionListener {
     private ArrayList<Obstacle> obstacles;
     private Random random = new Random();
 
+    // --- ส่วนของฉากหลัง (Sky Elements) ---
+    private final int MOON_X = 650; // ตำแหน่ง X พระจันทร์ (ขวาบน)
+    private final int MOON_Y = 50; // ตำแหน่ง Y พระจันทร์
+    private final int MOON_SIZE = 80; // ขนาดพระจันทร์
+
+    // ใช้ ArrayList เก็บพิกัด X และ Y ของดาวแต่ละดวง
+    private ArrayList<Integer> starXs = new ArrayList<>();
+    private ArrayList<Integer> starYs = new ArrayList<>();
+    private final int NUM_STARS = 100; // จำนวนดาวที่ต้องการ
+
     public GamePanel() {
 
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
         setLayout(null);
+
+        initStars();
 
         score = new Score();
         dino = new Dinosaur(100, 250);
@@ -105,8 +117,34 @@ public class GamePanel extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        g.setColor(new Color(10, 10, 40)); // สีเทาเกือบดำ
+        g.fillRect(0, 0, WIDTH, HEIGHT);
+
+        g.setColor(Color.WHITE);
+        for (int i = 0; i < starXs.size(); i++) {
+            g.fillRect(starXs.get(i), starYs.get(i), 2, 2);
+        }
+        g.setColor(new Color(255, 255, 255, 50));
+        g.fillOval(MOON_X - 10, MOON_Y - 10, MOON_SIZE + 20, MOON_SIZE + 20);
+        g.setColor(new Color(240, 240, 220));
+        g.fillOval(MOON_X, MOON_Y, MOON_SIZE, MOON_SIZE);
+
+        g.setColor(new Color(30, 30, 30));
+        g.fillRect(0, 290, WIDTH, HEIGHT - 290);
+        g.setColor(Color.WHITE);
+        g.drawLine(0, 290, WIDTH, 290);
         dino.draw(g);
         score.draw(g);
+        // DEBUG
+        g.setColor(Color.GREEN); // ใช้สีเขียวจะได้เห็นชัดๆ ตัดกับฉากหลังC:\Users\66967\Documents\GitHub\Dino#\GamePanel.java
+        g.setFont(new Font("Arial", Font.PLAIN, 16));
+        g.drawString("Debug Speed: " + gameSpeed, 20, 30);
+        if (gameOver) {
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 40));
+            g.drawString("GAME OVER", 280, 120);
+        }
+        //
 
         if (gameOver) {
             g.setColor(Color.WHITE);
@@ -118,9 +156,7 @@ public class GamePanel extends JPanel implements ActionListener {
             obs.draw(g);
         }
         for (Obstacle obs : obstacles) {
-
             if (!obs.getRequiredKey().equals("SPACE")) {
-
                 g.setColor(Color.YELLOW);
                 g.setFont(new Font("Arial", Font.BOLD, 20));
 
@@ -134,11 +170,32 @@ public class GamePanel extends JPanel implements ActionListener {
         for (PowerUp p : powerUps) {
             p.draw(g);
         }
+        if (dino.isInvincible()){
+            int barWidth = 200;
+            int barHeight = 15;
+            int x = 20;
+            int y = 50;
+            g.setColor(Color.WHITE);
+            g.drawRect(x, y, barWidth, barHeight);
+
+            double ratio = dino.getInvincibletTimeRemainingRatio();
+            int currentBarWidth = (int) (barWidth * ratio);
+
+            g.setColor(Color.YELLOW);
+            g.fillRect(x+1, y+1, currentBarWidth-1, barHeight-1);
+
+            g.setFont(new Font("Arial",Font.BOLD,12));
+            g.drawString("INVINCIBLE",x,y-5);
+        }
 
     }
 
     private void increaseDifficulty() {
-        gameSpeed = 5 + (int) (score.getScore() * 0.05);
+        gameSpeed = 5 + (score.getScore() / 15);
+
+        if (gameSpeed > 18) {
+            gameSpeed = 18;
+        }
 
         for (Obstacle obs : obstacles) {
             obs.setSpeed(gameSpeed);
@@ -231,6 +288,7 @@ public class GamePanel extends JPanel implements ActionListener {
         dino = new Dinosaur(100, 250);
         obstacles.clear();
         powerUps.clear();
+        initStars();
         String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
         obstacles.add(new SmallCactus(800, 250, gameSpeed, randomKey));
 
@@ -342,6 +400,17 @@ public class GamePanel extends JPanel implements ActionListener {
 
             }
         });
+    }
+
+    private void initStars() {
+        starXs.clear();
+        starYs.clear();
+        for (int i = 0; i < NUM_STARS; i++) {
+            // สุ่มตำแหน่ง X เต็มความกว้างจอ
+            starXs.add(random.nextInt(WIDTH));
+            // สุ่มตำแหน่ง Y เฉพาะครึ่งบนของจอ (เหนือพื้นดินที่ Y=290)
+            starYs.add(random.nextInt(280));
+        }
     }
 
 }

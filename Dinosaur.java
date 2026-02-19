@@ -75,5 +75,11 @@ public class Dinosaur {
     public int getX() {
         return x;
     }
+    public double getInvincibletTimeRemainingRatio(){
+        if(!invincible) return 0;
+        long remaining = invincibleEndTime - System.currentTimeMillis();
+        if(remaining <= 0) return 0;
+        return remaining / 3000.0;
+    }
 
 }
