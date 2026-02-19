@@ -1,0 +1,79 @@
+import java.awt.*;
+
+public class Dinosaur {
+    private boolean invincible = false;
+    private long invincibleEndTime = 0;
+
+    private int x, y;
+    private int width = 40;
+    private int height = 40;
+
+    private int velocityY = 0;
+    private boolean jumping = false;
+    private final int gravity = 1;
+    private final int ground = 250;
+
+    public Dinosaur(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void jump() {
+        if (!jumping) {
+            velocityY = -15;
+            jumping = true;
+        }
+    }
+
+    public void update() {
+        y += velocityY;
+        velocityY += gravity;
+
+        if (y >= ground) {
+            y = ground;
+            jumping = false;
+        }
+
+        if (invincible && System.currentTimeMillis() > invincibleEndTime) {
+            invincible = false;
+        }
+    }
+
+    // public void draw(Graphics g) {
+    // g.setColor(Color.GRAY);
+    // g.fillRect(x, y, width, height);
+    // }
+    public void draw(Graphics g) {
+
+        if (invincible) {
+            // กระพริบทุก 200 ms
+            if ((System.currentTimeMillis() / 200) % 2 == 0) {
+                g.setColor(Color.YELLOW);
+            } else {
+                g.setColor(Color.WHITE);
+            }
+        } else {
+            g.setColor(Color.WHITE);
+        }
+
+        g.fillRect(x, y, width, height);
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, width, height);
+    }
+
+    public void activateInvincible() {
+        invincible = true;
+        invincibleEndTime = System.currentTimeMillis() + 3000; // 3 วิ
+    }
+
+    public boolean isInvincible() {
+        return invincible;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+}
