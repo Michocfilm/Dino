@@ -11,6 +11,8 @@ public class GamePanel extends JPanel implements ActionListener {
     // private int lastSpawnX = 800;
     private final int MIN_SAFE_DISTANCE = 180;
     private int clusterCount = 0;
+    private String currentJumpKey = "SPACE";
+    private String[] possibleKeys = { "W", "A", "S", "D", "SPACE" };
 
     private final int WIDTH = 800;
     private final int HEIGHT = 400;
@@ -30,7 +32,7 @@ public class GamePanel extends JPanel implements ActionListener {
 
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
-        setLayout(null); // สำคัญ! ใช้จัดตำแหน่งเอง
+        setLayout(null);
 
         score = new Score();
         dino = new Dinosaur(100, 250);
@@ -39,19 +41,14 @@ public class GamePanel extends JPanel implements ActionListener {
         createButtons();
 
         timer = new Timer(16, this);
-        // กำหนดให้กด SPACE แล้วเรียก jump
-        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(
-                KeyStroke.getKeyStroke("SPACE"), "jump");
 
-        getActionMap().put("jump", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (gameRunning) {
-                    dino.jump();
-                }
-            }
-        });
+        // 🔥 bind ทุกปุ่มที่ใช้ได้
+        for (String key : possibleKeys) {
+            bindKey(key);
+        }
 
+        // สุ่มปุ่มเริ่มต้น
+        randomizeJumpKey();
     }
 
     @Override
@@ -77,8 +74,16 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     private void updateObstacles() {
-        for (Obstacle obs : obstacles) {
+
+        Iterator<Obstacle> it = obstacles.iterator();
+
+        while (it.hasNext()) {
+            Obstacle obs = it.next();
             obs.update();
+
+            if (obs.getX() + obs.getWidth() < 0) {
+                it.remove(); // 🔥 ลบต้นที่ออกจอแล้ว
+            }
         }
     }
 
@@ -112,6 +117,20 @@ public class GamePanel extends JPanel implements ActionListener {
         for (Obstacle obs : obstacles) {
             obs.draw(g);
         }
+        for (Obstacle obs : obstacles) {
+
+            if (!obs.getRequiredKey().equals("SPACE")) {
+
+                g.setColor(Color.YELLOW);
+                g.setFont(new Font("Arial", Font.BOLD, 20));
+
+                int textX = obs.getX() + 10;
+                int textY = obs.getY() - 10;
+
+                g.drawString(obs.getRequiredKey(), textX, textY);
+            }
+        }
+
         for (PowerUp p : powerUps) {
             p.draw(g);
         }
@@ -129,7 +148,10 @@ public class GamePanel extends JPanel implements ActionListener {
     private void spawnObstacle() {
 
         if (obstacles.isEmpty()) {
-            obstacles.add(createRandomObstacle(WIDTH));
+            randomizeJumpKey();
+            String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
+            obstacles.add(createRandomObstacle(WIDTH, randomKey));
+
             return;
         }
 
@@ -162,7 +184,10 @@ public class GamePanel extends JPanel implements ActionListener {
             }
         }
 
-        obstacles.add(createRandomObstacle(WIDTH + gap));
+        String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
+        Obstacle obs = createRandomObstacle(WIDTH + gap, randomKey);
+        obstacles.add(obs);
+
     }
 
     private void createButtons() {
@@ -193,7 +218,8 @@ public class GamePanel extends JPanel implements ActionListener {
         startButton.setVisible(false);
 
         obstacles.clear();
-        obstacles.add(new SmallCactus(800, 250, gameSpeed));
+        String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
+        obstacles.add(new SmallCactus(800, 250, gameSpeed, randomKey));
 
         timer.start();
         requestFocusInWindow(); // ให้กด space ได้
@@ -205,7 +231,8 @@ public class GamePanel extends JPanel implements ActionListener {
         dino = new Dinosaur(100, 250);
         obstacles.clear();
         powerUps.clear();
-        obstacles.add(new SmallCactus(800, 250, gameSpeed));
+        String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
+        obstacles.add(new SmallCactus(800, 250, gameSpeed, randomKey));
 
         gameOver = false;
         gameRunning = true;
@@ -279,12 +306,42 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    private Obstacle createRandomObstacle(int x) {
+    private Obstacle createRandomObstacle(int x, String key) {
         if (random.nextBoolean()) {
-            return new SmallCactus(x, 250, gameSpeed);
+            return new SmallCactus(x, 250, gameSpeed, key);
         } else {
-            return new TallCactus(x, 230, gameSpeed);
+            return new TallCactus(x, 230, gameSpeed, key);
         }
+    }
+
+    private void randomizeJumpKey() {
+        currentJumpKey = possibleKeys[random.nextInt(possibleKeys.length)];
+        System.out.println("Current Jump Key: " + currentJumpKey);
+    }
+
+    private void bindKey(String keyName) {
+
+        getInputMap(WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(keyName), keyName);
+
+        getActionMap().put(keyName, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (!gameRunning)
+                    return;
+
+                if (!obstacles.isEmpty()) {
+
+                    Obstacle first = obstacles.get(0);
+
+                    if (keyName.equals(first.getRequiredKey())) {
+                        dino.jump();
+                    }
+                }
+
+            }
+        });
     }
 
 }

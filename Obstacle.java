@@ -1,18 +1,20 @@
 import java.awt.*;
 
 public abstract class Obstacle {
+    protected String requiredKey;
 
     protected int x, y;
     protected int width, height;
     protected int speed = 5;
     protected boolean scored = false;
 
-    public Obstacle(int x, int y, int width, int height, int speed) {
+    public Obstacle(int x, int y, int width, int height, int speed, String key) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.speed = speed;
+        this.requiredKey = key;
     }
 
     public void update() {
@@ -36,6 +38,7 @@ public abstract class Obstacle {
     public int getX() {
         return x;
     }
+    public int getY() { return y; }
 
     public boolean isScored() {
         return scored;
@@ -47,6 +50,10 @@ public abstract class Obstacle {
 
     public int getWidth() {
         return width;
+    }
+
+    public String getRequiredKey() {
+        return requiredKey;
     }
 
 }
