@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Iterator;
 
-public class GamePanel extends JPanel implements ActionListener {
+public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Score score;
     private int gameSpeed = 5;
     private int clusterCount = 0;
@@ -38,6 +38,23 @@ public class GamePanel extends JPanel implements ActionListener {
     private ArrayList<Integer> starYs = new ArrayList<>();
     private final int NUM_STARS = 100; // จำนวนดาวที่ต้องการ
 
+    private int bossX = 400;
+    private int bossY = -200;
+    private boolean bossSliding = false;
+    private boolean bossTriggered = false;
+
+    private String targetText = "";
+    private String playerInput = "";
+    private String[] bossTexts = {
+            "java is fun",
+            "object oriented programming",
+            "type faster to win",
+            "dino boss fight"
+    };
+    private long bossStartTime;
+    private int timeLimit = 10;
+    private int nextBossScore = 25;
+
     public GamePanel() {
 
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -64,6 +81,8 @@ public class GamePanel extends JPanel implements ActionListener {
 
         // สุ่มปุ่มเริ่มต้น
         randomizeJumpKey();
+        addKeyListener(this);
+        setFocusable(true);
     }
 
     @Override
@@ -72,21 +91,70 @@ public class GamePanel extends JPanel implements ActionListener {
         if (!gameRunning)
             return;
 
-        dino.update();
-        // score.update();
-        updateScoreFromObstacles();
+        // ===== RUNNING =====
+        if (gameState == GameState.RUNNING) {
 
+            dino.update();
+            updateObstacles();
+            spawnObstacle();
+            checkCollision();
+
+            if (score.getScore() >= nextBossScore
+                    && gameState == GameState.RUNNING) {
+
+                gameState = GameState.PRE_BOSS;
+            }
+        }
+
+        // ===== PRE_BOSS (ให้ตกลงพื้นก่อน) =====
+        if (gameState == GameState.PRE_BOSS) {
+
+            dino.update();
+
+            if (!dino.isJumping()) {
+                startBossFight();
+            }
+
+            repaint();
+            return;
+        }
+
+        // ===== BOSS SLIDE =====
+        if (gameState == GameState.BOSS && bossSliding) {
+            bossY += 4;
+
+            if (bossY >= 120) {
+                bossSliding = false;
+                startTypingChallenge();
+            }
+        }
+
+        // ===== BOSS GAMEPLAY =====
+        if (gameState == GameState.BOSS && !bossSliding) {
+
+            long elapsed = (System.currentTimeMillis() - bossStartTime) / 1000;
+
+            if (elapsed >= timeLimit) {
+                triggerGameOver();
+            }
+
+            if (playerInput.equals(targetText)) {
+                gameState = GameState.RUNNING;
+                bossY = -200;
+                obstacles.clear();
+                nextBossScore += 25;
+                // obstaclesPassedInWave = 0;
+            }
+        }
+
+        updateScoreFromObstacles();
         increaseDifficulty();
-        updateObstacles();
-        spawnObstacle();
-        checkCollision();
         spawnPowerUp();
         updatePowerUps();
         checkPowerUpCollision();
         updateStars();
 
         repaint();
-
     }
 
     private void updateObstacles() {
@@ -106,14 +174,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private void checkCollision() {
         for (Obstacle obs : obstacles) {
             if (!dino.isInvincible() && dino.getBounds().intersects(obs.getBounds())) {
-
-                gameOver = true;
-                gameRunning = false;
-
-                timer.stop();
-
-                restartButton.setVisible(true);
-                exitButton.setVisible(true);
+                triggerGameOver();
             }
         }
     }
@@ -121,6 +182,7 @@ public class GamePanel extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         g.setColor(new Color(10, 10, 40)); // สีเทาเกือบดำ
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
@@ -194,6 +256,23 @@ public class GamePanel extends JPanel implements ActionListener {
             g.setFont(new Font("Arial", Font.BOLD, 12));
             g.drawString("INVINCIBLE", x, y - 5);
         }
+        if (gameState == GameState.BOSS) {
+
+            g.setColor(Color.RED);
+            g.fillRect(bossX, bossY, 150, 150);
+
+            g.setColor(Color.WHITE);
+            g.drawString("Type this:", 300, 300);
+            if (targetText != null) {
+                g.drawString(targetText, 300, 330);
+            }
+            if (playerInput != null) {
+                g.drawString(playerInput, 300, 360);
+            }
+
+            long elapsed = (System.currentTimeMillis() - bossStartTime) / 1000;
+            g.drawString("Time left: " + (timeLimit - elapsed), 300, 390);
+        }
 
     }
 
@@ -210,6 +289,9 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     private void spawnObstacle() {
+        // 🔴 หยุด spawn ถ้าไม่ใช่ RUNNING
+        if (gameState != GameState.RUNNING)
+            return;
 
         if (obstacles.isEmpty()) {
             randomizeJumpKey();
@@ -306,6 +388,11 @@ public class GamePanel extends JPanel implements ActionListener {
 
         timer.start();
         requestFocusInWindow();
+        gameState = GameState.RUNNING;
+        bossY = -200;
+        bossSliding = false;
+        bossTriggered = false;
+        playerInput = "";
     }
 
     private void spawnPowerUp() {
@@ -436,4 +523,57 @@ public class GamePanel extends JPanel implements ActionListener {
         }
     }
 
+    enum GameState {
+        RUNNING,
+        BOSS,
+        GAME_OVER,
+        PRE_BOSS
+    }
+
+    private GameState gameState = GameState.RUNNING;
+
+    private void startBossFight() {
+        gameState = GameState.BOSS;
+        bossSliding = true;
+        obstacles.clear();
+        dino.resetToGround();
+    }
+
+    private void startTypingChallenge() {
+        bossStartTime = System.currentTimeMillis();
+        playerInput = "";
+        targetText = bossTexts[random.nextInt(bossTexts.length)];
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+        if (gameState == GameState.BOSS) {
+
+            char c = e.getKeyChar();
+
+            if (c == '\b' && playerInput.length() > 0) {
+                playerInput = playerInput.substring(0, playerInput.length() - 1);
+            } else {
+                playerInput += c;
+            }
+        }
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+    }
+
+    private void triggerGameOver() {
+        gameState = GameState.GAME_OVER;
+        gameOver = true;
+        gameRunning = false;
+        timer.stop();
+        restartButton.setVisible(true);
+        exitButton.setVisible(true);
+    }
 }

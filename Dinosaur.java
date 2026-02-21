@@ -86,4 +86,13 @@ public class Dinosaur {
         return remaining / 3000.0;
     }
 
+    public void resetToGround() {
+        y = ground - height;
+        velocityY = 0;
+        jumping = false;
+    }
+
+    public boolean isJumping() {
+        return jumping;
+    }
 }
