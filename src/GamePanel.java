@@ -24,9 +24,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private ArrayList<PowerUp> powerUps = new ArrayList<>();
 
     private Timer timer;
-    private Dinosaur dino;
+    private Player dino;
     private ArrayList<Obstacle> obstacles;
     private Random random = new Random();
+
+    private int selectedChar = 0;
+    private Image customUserImage = null;
+
+    private String[] charFiles = {"dino.png","robot.png","ninja.java"};
+
+    private JButton prevBtn;
+    private JButton nextBtn;
+    private JButton browseButton;
 
     // --- ส่วนของฉากหลัง (Sky Elements) ---
     private final int MOON_X = 650; // ตำแหน่ง X พระจันทร์ (ขวาบน)
@@ -53,7 +62,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     };
     private long bossStartTime;
     private int timeLimit = 10;
-    private int nextBossScore = 25;
+    private int nextBossScore = 15;
 
     public GamePanel() {
 
@@ -66,7 +75,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         initStars();
 
         score = new Score();
-        dino = new Dinosaur(100, GROUND_Y);
+        dino = new DinoChar(100, GROUND_Y);
 
         obstacles = new ArrayList<>();
 
@@ -98,6 +107,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             updateObstacles();
             spawnObstacle();
             checkCollision();
+            updateScoreFromObstacles();
+            increaseDifficulty();
+            spawnPowerUp();
+            updatePowerUps();
+            checkPowerUpCollision();
+            updateStars();
 
             if (score.getScore() >= nextBossScore
                     && gameState == GameState.RUNNING) {
@@ -108,15 +123,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         // ===== PRE_BOSS (ให้ตกลงพื้นก่อน) =====
         if (gameState == GameState.PRE_BOSS) {
-
             dino.update();
 
             if (!dino.isJumping()) {
                 startBossFight();
             }
-
-            repaint();
-            return;
         }
 
         // ===== BOSS SLIDE =====
@@ -140,19 +151,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
             if (playerInput.equals(targetText)) {
                 gameState = GameState.RUNNING;
+                nextBossScore += 15;
                 bossY = -200;
                 obstacles.clear();
-                nextBossScore += 25;
+                playerInput = "";
                 // obstaclesPassedInWave = 0;
             }
         }
-
-        updateScoreFromObstacles();
-        increaseDifficulty();
-        spawnPowerUp();
-        updatePowerUps();
-        checkPowerUpCollision();
-        updateStars();
 
         repaint();
     }
@@ -182,6 +187,22 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if(gameState == GameState.MENU){
+            g.setColor(new Color(10,10,40));
+            g.fillRect(0, 0, WIDTH, HEIGHT);
+
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial",Font.BOLD,40));
+            g.drawString("SELECT CHARACTER",WIDTH / 2 - 200, HEIGHT / 2 - 120);
+
+            String[] charNames = {"Classic Dino","Robot","Ninja","Custom Image"};
+            g.setFont(new Font("Arial",Font.BOLD,24));
+            String name =charNames[selectedChar];
+            int nameWidth = g.getFontMetrics().stringWidth(name);
+            g.drawString(name,WIDTH / 2 - (nameWidth / 2),HEIGHT / 2);
+
+            return;
+        }
 
         g.setColor(new Color(10, 10, 40)); // สีเทาเกือบดำ
         g.fillRect(0, 0, WIDTH, HEIGHT);
@@ -260,18 +281,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
             g.setColor(Color.RED);
             g.fillRect(bossX, bossY, 150, 150);
-
-            g.setColor(Color.WHITE);
-            g.drawString("Type this:", 300, 300);
-            if (targetText != null) {
-                g.drawString(targetText, 300, 330);
+            if (!bossSliding) {
+                g.setColor(Color.WHITE);
+                g.drawString("Type this:", 300, 300);
+                if (targetText != null) {
+                    g.drawString(targetText, 300, 330);
+                }
+                if (playerInput != null) {
+                    g.drawString(playerInput, 300, 360);
+                }
+                long elapsed = (System.currentTimeMillis() - bossStartTime) / 1000;
+                g.drawString("Time left: " + (timeLimit - elapsed), 300, 390);
             }
-            if (playerInput != null) {
-                g.drawString(playerInput, 300, 360);
-            }
-
-            long elapsed = (System.currentTimeMillis() - bossStartTime) / 1000;
-            g.drawString("Time left: " + (timeLimit - elapsed), 300, 390);
         }
 
     }
@@ -339,7 +360,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private void createButtons() {
 
         startButton = new JButton("START");
-        startButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 - 40, 100, 40);
+        startButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 80, 100, 40);
         add(startButton);
 
         restartButton = new JButton("RESTART");
@@ -355,12 +376,60 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         startButton.addActionListener(e -> startGame());
         restartButton.addActionListener(e -> restartGame());
         exitButton.addActionListener(e -> System.exit(0));
+
+        prevBtn = new JButton("<");
+        prevBtn.setBounds(WIDTH / 2 - 150,HEIGHT / 2 - 30,50,40);
+        prevBtn.addActionListener(e -> {
+            selectedChar = (selectedChar - 1 + 4) % 4;
+            updateBrowseButtonVisibility();
+            repaint();
+        });
+        add(prevBtn);
+        nextBtn = new JButton(">");
+        nextBtn.setBounds(WIDTH / 2 + 100, HEIGHT / 2 - 30,50,40);
+        nextBtn.addActionListener(e ->{
+            selectedChar = (selectedChar + 1) % 4;
+            updateBrowseButtonVisibility();
+            repaint();
+        });
+        add(nextBtn);
+        browseButton = new JButton("Choose Image");
+        browseButton.setBounds(WIDTH / 2 - 60,HEIGHT / 2 + 140,120,30);
+        browseButton.setVisible(false);
+        browseButton.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+                customUserImage = new ImageIcon(chooser.getSelectedFile().getAbsolutePath()).getImage();
+                repaint();
+            }
+        });
+        add(browseButton);
+    }
+    private void updateBrowseButtonVisibility(){
+        if (selectedChar == 3){
+            browseButton.setVisible(true);
+        }else{
+            browseButton.setVisible(false);
+        }
     }
 
     private void startGame() {
+        if(selectedChar == 3 && customUserImage == null){
+            JOptionPane.showMessageDialog(this, "Please  select an image first for Custom Character!","Image Missing",JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        startButton.setVisible(false);
+        prevBtn.setVisible(false);
+        nextBtn.setVisible(false);
+        browseButton.setVisible(false);
+        
+        if(selectedChar < 3){
+            dino = new DefaultChar(100, GROUND_Y, charFiles[selectedChar]);
+        }else{
+            dino = new CustomChar(100, GROUND_Y, customUserImage);
+        }
         gameRunning = true;
-        gameOver = false;
-
+        gameState = GameState.RUNNING;
         startButton.setVisible(false);
 
         obstacles.clear();
@@ -374,12 +443,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private void restartGame() {
 
         score = new Score();
-        dino = new Dinosaur(100, GROUND_Y);
+        dino = new DinoChar(100, GROUND_Y);
         obstacles.clear();
         powerUps.clear();
         initStars();
         String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
         obstacles.add(new SmallCactus(800, GROUND_Y - 40, gameSpeed, randomKey));
+        // Boss
+        gameState = GameState.RUNNING;
+        nextBossScore = 15;
+        bossY = -200;
+        playerInput = "";
 
         gameOver = false;
         gameRunning = true;
@@ -524,18 +598,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
 
     enum GameState {
+        MENU,
         RUNNING,
         BOSS,
         GAME_OVER,
         PRE_BOSS
     }
 
-    private GameState gameState = GameState.RUNNING;
+    private GameState gameState = GameState.MENU;
 
     private void startBossFight() {
         gameState = GameState.BOSS;
         bossSliding = true;
-        obstacles.clear();
         dino.resetToGround();
     }
 

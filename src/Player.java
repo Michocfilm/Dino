@@ -1,19 +1,21 @@
 import java.awt.*;
 
-public class Dinosaur {
-    private boolean invincible = false;
-    private long invincibleEndTime = 0;
+public abstract class Player {
+    protected boolean invincible = false;
+    protected long invincibleEndTime = 0;
 
-    private int x, y;
-    private int width = 40;
-    private int height = 40;
+    protected int x, y;
+    protected int width = 40;
+    protected int height = 40;
 
-    private int velocityY = 0;
-    private boolean jumping = false;
-    private final int gravity = 1;
-    private int ground;
+    protected int velocityY = 0;
+    protected boolean jumping = false;
+    protected final int gravity = 1;
+    protected int ground;
 
-    public Dinosaur(int x, int groundY) {
+    protected Image image;
+
+    public Player(int x, int groundY) {
         this.x = x;
         this.ground = groundY;
         this.y = groundY - height; // ให้ฐานติดพื้น
@@ -32,6 +34,7 @@ public class Dinosaur {
 
         if (y >= ground - height) {
             y = ground - height;
+            velocityY = 0;
             jumping = false;
         }
 
@@ -44,21 +47,6 @@ public class Dinosaur {
     // g.setColor(Color.GRAY);
     // g.fillRect(x, y, width, height);
     // }
-    public void draw(Graphics g) {
-
-        if (invincible) {
-            // กระพริบทุก 200 ms
-            if ((System.currentTimeMillis() / 200) % 2 == 0) {
-                g.setColor(Color.YELLOW);
-            } else {
-                g.setColor(Color.WHITE);
-            }
-        } else {
-            g.setColor(Color.WHITE);
-        }
-
-        g.fillRect(x, y, width, height);
-    }
 
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
@@ -72,9 +60,25 @@ public class Dinosaur {
     public boolean isInvincible() {
         return invincible;
     }
+    public boolean isJumping() {
+        return jumping;
+    }
 
     public int getX() {
         return x;
+    }
+
+    public Image getImage(){
+        return image;
+    }
+    
+    public int getY(){
+        return y;
+    }
+    public void resetToGround() {
+        y = ground - height;
+        velocityY = 0;
+        jumping = false;
     }
 
     public double getInvincibletTimeRemainingRatio() {
@@ -85,14 +89,5 @@ public class Dinosaur {
             return 0;
         return remaining / 3000.0;
     }
-
-    public void resetToGround() {
-        y = ground - height;
-        velocityY = 0;
-        jumping = false;
-    }
-
-    public boolean isJumping() {
-        return jumping;
-    }
+    public abstract void draw(Graphics g);
 }
