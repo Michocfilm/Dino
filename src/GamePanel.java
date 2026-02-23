@@ -1,9 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Iterator;
+import java.io.File;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Score score;
@@ -31,7 +34,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private int selectedChar = 0;
     private Image customUserImage = null;
 
-    private String[] charFiles = {"dino.png","robot.png","ninja.java"};
+    private String[] charFiles = { "dino.png", "robot.png", "ninja.java" };
 
     private JButton prevBtn;
     private JButton nextBtn;
@@ -187,19 +190,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if(gameState == GameState.MENU){
-            g.setColor(new Color(10,10,40));
+        if (gameState == GameState.MENU) {
+            g.setColor(new Color(10, 10, 40));
             g.fillRect(0, 0, WIDTH, HEIGHT);
 
             g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial",Font.BOLD,40));
-            g.drawString("SELECT CHARACTER",WIDTH / 2 - 200, HEIGHT / 2 - 120);
+            g.setFont(new Font("Arial", Font.BOLD, 40));
+            g.drawString("SELECT CHARACTER", WIDTH / 2 - 200, HEIGHT / 2 - 120);
 
-            String[] charNames = {"Classic Dino","Robot","Ninja","Custom Image"};
-            g.setFont(new Font("Arial",Font.BOLD,24));
-            String name =charNames[selectedChar];
+            String[] charNames = { "Classic Dino", "Robot", "Ninja", "Custom Image" };
+            g.setFont(new Font("Arial", Font.BOLD, 24));
+            String name = charNames[selectedChar];
             int nameWidth = g.getFontMetrics().stringWidth(name);
-            g.drawString(name,WIDTH / 2 - (nameWidth / 2),HEIGHT / 2);
+            g.drawString(name, WIDTH / 2 - (nameWidth / 2), HEIGHT / 2);
 
             return;
         }
@@ -378,7 +381,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         exitButton.addActionListener(e -> System.exit(0));
 
         prevBtn = new JButton("<");
-        prevBtn.setBounds(WIDTH / 2 - 150,HEIGHT / 2 - 30,50,40);
+        prevBtn.setBounds(WIDTH / 2 - 150, HEIGHT / 2 - 30, 50, 40);
         prevBtn.addActionListener(e -> {
             selectedChar = (selectedChar - 1 + 4) % 4;
             updateBrowseButtonVisibility();
@@ -386,46 +389,74 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         });
         add(prevBtn);
         nextBtn = new JButton(">");
-        nextBtn.setBounds(WIDTH / 2 + 100, HEIGHT / 2 - 30,50,40);
-        nextBtn.addActionListener(e ->{
+        nextBtn.setBounds(WIDTH / 2 + 100, HEIGHT / 2 - 30, 50, 40);
+        nextBtn.addActionListener(e -> {
             selectedChar = (selectedChar + 1) % 4;
             updateBrowseButtonVisibility();
             repaint();
         });
         add(nextBtn);
         browseButton = new JButton("Choose Image");
-        browseButton.setBounds(WIDTH / 2 - 60,HEIGHT / 2 + 140,120,30);
+        browseButton.setBounds(WIDTH / 2 - 60, HEIGHT / 2 + 140, 120, 30);
         browseButton.setVisible(false);
         browseButton.addActionListener(e -> {
+
             JFileChooser chooser = new JFileChooser();
-            if(chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-                customUserImage = new ImageIcon(chooser.getSelectedFile().getAbsolutePath()).getImage();
+
+            // ✅ กรองเฉพาะไฟล์ภาพ
+            javax.swing.filechooser.FileNameExtensionFilter filter = new javax.swing.filechooser.FileNameExtensionFilter(
+                    "Image Files (*.png, *.jpg, *.jpeg)",
+                    "png", "jpg", "jpeg");
+
+            chooser.setFileFilter(filter);
+            chooser.setAcceptAllFileFilterUsed(false); // ❌ ไม่ให้เลือก All Files
+
+            int result = chooser.showOpenDialog(this);
+
+            if (result == JFileChooser.APPROVE_OPTION) {
+
+                File selectedFile = chooser.getSelectedFile();
+                String name = selectedFile.getName().toLowerCase();
+
+                // 🔒 เช็คซ้ำอีกรอบกันนามสกุลปลอม
+                if (!(name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg"))) {
+                    JOptionPane.showMessageDialog(this,
+                            "Please select a valid image file (.png, .jpg, .jpeg)",
+                            "Invalid File",
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                customUserImage = new ImageIcon(selectedFile.getAbsolutePath()).getImage();
+
                 repaint();
             }
         });
         add(browseButton);
     }
-    private void updateBrowseButtonVisibility(){
-        if (selectedChar == 3){
+
+    private void updateBrowseButtonVisibility() {
+        if (selectedChar == 3) {
             browseButton.setVisible(true);
-        }else{
+        } else {
             browseButton.setVisible(false);
         }
     }
 
     private void startGame() {
-        if(selectedChar == 3 && customUserImage == null){
-            JOptionPane.showMessageDialog(this, "Please  select an image first for Custom Character!","Image Missing",JOptionPane.ERROR_MESSAGE);
+        if (selectedChar == 3 && customUserImage == null) {
+            JOptionPane.showMessageDialog(this, "Please  select an image first for Custom Character!", "Image Missing",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         startButton.setVisible(false);
         prevBtn.setVisible(false);
         nextBtn.setVisible(false);
         browseButton.setVisible(false);
-        
-        if(selectedChar < 3){
+
+        if (selectedChar < 3) {
             dino = new DefaultChar(100, GROUND_Y, charFiles[selectedChar]);
-        }else{
+        } else {
             dino = new CustomChar(100, GROUND_Y, customUserImage);
         }
         gameRunning = true;
