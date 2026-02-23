@@ -34,11 +34,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private int selectedChar = 0;
     private Image customUserImage = null;
 
-    private String[] charFiles = { "dino.png", "robot.png", "ninja.java" };
+    private String[] charFiles = { "dino.png", "robot.png", "ninja.png" };
 
     private JButton prevBtn;
     private JButton nextBtn;
     private JButton browseButton;
+    private JButton homeButton;
 
     // --- ส่วนของฉากหลัง (Sky Elements) ---
     private final int MOON_X = 650; // ตำแหน่ง X พระจันทร์ (ขวาบน)
@@ -371,8 +372,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         restartButton.setVisible(false);
         add(restartButton);
 
+        homeButton = new JButton("HOME");
+        homeButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 60, 100, 40);
+        homeButton.setVisible(false);
+        add(homeButton);
+
         exitButton = new JButton("EXIT");
-        exitButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 60, 100, 40);
+        exitButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 110, 100, 40);
         exitButton.setVisible(false);
         add(exitButton);
 
@@ -433,6 +439,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
         });
         add(browseButton);
+
+        homeButton.addActionListener(e -> goToMenu());
     }
 
     private void updateBrowseButtonVisibility() {
@@ -494,6 +502,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         gameOver = false;
         gameRunning = true;
         restartButton.setVisible(false);
+        homeButton.setVisible(false);
         exitButton.setVisible(false);
 
         timer.start();
@@ -683,7 +692,38 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         gameOver = true;
         gameRunning = false;
         timer.stop();
+        homeButton.setVisible(true);
         restartButton.setVisible(true);
         exitButton.setVisible(true);
+
+    }
+
+    private void goToMenu() {
+
+        gameState = GameState.MENU;
+        gameRunning = false;
+        gameOver = false;
+
+        timer.stop();
+
+        // ซ่อนปุ่มตอน Game Over
+        restartButton.setVisible(false);
+        exitButton.setVisible(false);
+        homeButton.setVisible(false);
+
+        // แสดงปุ่มเลือกตัวละคร
+        startButton.setVisible(true);
+        prevBtn.setVisible(true);
+        nextBtn.setVisible(true);
+        updateBrowseButtonVisibility();
+
+        // รีเซ็ตข้อมูลเกม
+        obstacles.clear();
+        powerUps.clear();
+        score = new Score();
+        bossY = -200;
+        playerInput = "";
+
+        repaint();
     }
 }
