@@ -28,6 +28,10 @@ public abstract class Obstacle {
     public abstract void draw(Graphics g);
 
     public Rectangle getBounds() {
+        int hitboxX = x + 15;
+        int hitboxY = y + 10;
+        int hitboxWidth = width - 30;
+        int hitboxHeight = height - 15;
         return new Rectangle(x, y, width, height);
     }
 

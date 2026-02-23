@@ -255,10 +255,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         for (Obstacle obs : obstacles) {
             if (!obs.getRequiredKey().equals("SPACE")) {
                 g.setColor(Color.YELLOW);
-                g.setFont(new Font("Arial", Font.BOLD, 20));
+                g.setFont(new Font("Arial", Font.BOLD, 30));
 
-                int textX = obs.getX() + 10;
-                int textY = obs.getY() - 10;
+                int textX = obs.getX() + 20;
+                int textY = obs.getY() - 15;
 
                 g.drawString(obs.getRequiredKey(), textX, textY);
             }
@@ -305,7 +305,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 g.drawString("Time left: " + (timeLimit - elapsed), 300, 390);
             }
         }
-
+ /*        g.setColor(Color.RED);
+        // วาดกรอบ Hitbox ของ Player
+        Rectangle pBox = dino.getBounds();
+        g.drawRect(pBox.x, pBox.y, pBox.width, pBox.height);
+        
+        // วาดกรอบ Hitbox ของสิ่งกีดขวาง
+        for (Obstacle obs : obstacles) {
+            Rectangle oBox = obs.getBounds();
+            g.drawRect(oBox.x, oBox.y, oBox.width, oBox.height);
+        } */
     }
 
     private void increaseDifficulty() {
@@ -480,7 +489,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         obstacles.clear();
         String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
-        obstacles.add(new SmallTree(800, GROUND_Y - 40, gameSpeed, randomKey));
+        obstacles.add(new SmallTree(800, GROUND_Y - 80, gameSpeed, randomKey));
 
         timer.start();
         requestFocusInWindow(); // ให้กด space ได้
@@ -499,7 +508,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         powerUps.clear();
         initStars();
         String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
-        obstacles.add(new SmallTree(800, GROUND_Y - 40, gameSpeed, randomKey));
+        obstacles.add(new SmallTree(800, GROUND_Y - 80, gameSpeed, randomKey));
         // Boss
         gameState = GameState.RUNNING;
         nextBossScore = 15;
@@ -586,9 +595,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     private Obstacle createRandomObstacle(int x, String key) {
         if (random.nextBoolean()) {
-            return new SmallTree(x, GROUND_Y - 40, gameSpeed, key);
+            return new SmallTree(x, GROUND_Y - 80, gameSpeed, key);
         } else {
-            return new TallTree(x, GROUND_Y - 60, gameSpeed, key);
+            return new TallTree(x, GROUND_Y - 120, gameSpeed, key);
         }
     }
 

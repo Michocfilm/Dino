@@ -5,8 +5,8 @@ public abstract class Player {
     protected long invincibleEndTime = 0;
 
     protected int x, y;
-    protected int width = 40;
-    protected int height = 40;
+    protected int width = 90;
+    protected int height = 90;
 
     protected int velocityY = 0;
     protected boolean jumping = false;
@@ -23,7 +23,7 @@ public abstract class Player {
 
     public void jump() {
         if (!jumping) {
-            velocityY = -15;
+            velocityY = -18;
             jumping = true;
         }
     }
@@ -49,7 +49,7 @@ public abstract class Player {
     // }
 
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
+        return new Rectangle(x + 20, y + 15, width - 40, height - 20);
     }
 
     public void activateInvincible() {

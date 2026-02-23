@@ -5,7 +5,7 @@ public class TallTree extends Obstacle {
     private Image image;
 
     public TallTree(int x, int y, int speed, String key) {
-        super(x, y, 30, 60, speed, key);
+        super(x, y, 80, 120, speed, key);
         this.image = new ImageIcon("tall_tree.png").getImage(); 
     }
 
@@ -17,5 +17,8 @@ public class TallTree extends Obstacle {
         g.setColor(Color.BLUE);
         g.fillRect(x, y, width, height);
         }
+    }
+    public Rectangle getBounds(){
+        return new Rectangle(x + 20, y + 15, width - 40, height - 20);
     }
 }
