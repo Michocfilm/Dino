@@ -56,13 +56,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private boolean bossSliding = false;
     private boolean bossTriggered = false;
 
+    private String[] bossImageFiles = {"boss1.png","boss2.png","boss3.png"};
+    private Image currentBossImage = null;
+
     private String targetText = "";
     private String playerInput = "";
     private String[] bossTexts = {
             "java is fun",
             "object oriented programming",
             "type faster to win",
-            "dino boss fight"
+            "dino boss fight",
+            "Satana so handsome mak mak kub"
     };
     private long bossStartTime;
     private int timeLimit = 10;
@@ -283,8 +287,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
         if (gameState == GameState.BOSS) {
 
-            g.setColor(Color.RED);
-            g.fillRect(bossX, bossY, 150, 150);
+            if(currentBossImage != null){
+                g.drawImage(currentBossImage, bossX, bossY, 150,150,null);
+            }else{
+                g.setColor(Color.RED);
+                g.fillRect(bossX, bossY, 150, 150);  
+            }
             if (!bossSliding) {
                 g.setColor(Color.WHITE);
                 g.drawString("Type this:", 300, 300);
@@ -473,7 +481,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         obstacles.clear();
         String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
-        obstacles.add(new SmallCactus(800, GROUND_Y - 40, gameSpeed, randomKey));
+        obstacles.add(new SmallTree(800, GROUND_Y - 40, gameSpeed, randomKey));
 
         timer.start();
         requestFocusInWindow(); // ให้กด space ได้
@@ -492,7 +500,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         powerUps.clear();
         initStars();
         String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
-        obstacles.add(new SmallCactus(800, GROUND_Y - 40, gameSpeed, randomKey));
+        obstacles.add(new SmallTree(800, GROUND_Y - 40, gameSpeed, randomKey));
         // Boss
         gameState = GameState.RUNNING;
         nextBossScore = 15;
@@ -579,9 +587,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     private Obstacle createRandomObstacle(int x, String key) {
         if (random.nextBoolean()) {
-            return new SmallCactus(x, GROUND_Y - 40, gameSpeed, key);
+            return new SmallTree(x, GROUND_Y - 40, gameSpeed, key);
         } else {
-            return new TallCactus(x, GROUND_Y - 60, gameSpeed, key);
+            return new TallTree(x, GROUND_Y - 60, gameSpeed, key);
         }
     }
 
@@ -656,6 +664,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         gameState = GameState.BOSS;
         bossSliding = true;
         dino.resetToGround();
+
+        String randomBossFile = bossImageFiles[random.nextInt(bossImageFiles.length)];
+        currentBossImage = new ImageIcon(randomBossFile).getImage();
     }
 
     private void startTypingChallenge() {

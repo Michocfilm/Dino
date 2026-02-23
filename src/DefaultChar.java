@@ -10,7 +10,12 @@ public class DefaultChar extends Player{
     public void draw(Graphics g){
         if(invincible && (System.currentTimeMillis() / 200) % 2 == 0){
         }else{
-            g.drawImage(image, x, y, width,height,null);
+            int drawY = y;
+            if(!jumping){
+            int bobbing = (int)(Math.sin(System.currentTimeMillis() / 100.0 ) * 4);
+            drawY += bobbing;
+            }
+            g.drawImage(image, x, drawY, width , height ,null);
         }
     }
 }
