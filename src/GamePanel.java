@@ -224,15 +224,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.setColor(new Color(240, 240, 220));
         g.fillOval(MOON_X, MOON_Y, MOON_SIZE, MOON_SIZE);
 
-        g.setColor(new Color(30, 30, 30));
+        g.setColor(new Color(101, 67, 33));
         g.fillRect(0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y);
         g.setColor(Color.WHITE);
         g.drawLine(0, GROUND_Y, WIDTH, GROUND_Y);
         dino.draw(g);
         score.draw(g);
         // DEBUG
-        g.setColor(Color.GREEN); // ใช้สีเขียวจะได้เห็นชัดๆ
-                                 // ตัดกับฉากหลังC:\Users\66967\Documents\GitHub\Dino#\GamePanel.java
+        g.setColor(Color.GREEN); 
         g.setFont(new Font("Arial", Font.PLAIN, 16));
         g.drawString("Debug Speed: " + gameSpeed, 20, 30);
         if (gameOver) {
