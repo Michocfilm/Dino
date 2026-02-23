@@ -474,7 +474,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private void restartGame() {
 
         score = new Score();
-        dino = new DinoChar(100, GROUND_Y);
+        // dino = new DinoChar(100, GROUND_Y);
+        if (selectedChar < 3) {
+            dino = new DefaultChar(100, GROUND_Y, charFiles[selectedChar]);
+        } else {
+            dino = new CustomChar(100, GROUND_Y, customUserImage);
+        }
         obstacles.clear();
         powerUps.clear();
         initStars();
