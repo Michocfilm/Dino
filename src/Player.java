@@ -14,11 +14,12 @@ public abstract class Player {
     protected int ground;
 
     protected Image image;
+    protected int feetOffset = 15;
 
     public Player(int x, int groundY) {
         this.x = x;
         this.ground = groundY;
-        this.y = groundY - height; // ให้ฐานติดพื้น
+        this.y = groundY - height + feetOffset; // ให้ฐานติดพื้น
     }
 
     public void jump() {
@@ -32,8 +33,8 @@ public abstract class Player {
         y += velocityY;
         velocityY += gravity;
 
-        if (y >= ground - height) {
-            y = ground - height;
+        if (y >= ground - height + feetOffset) {
+            y = ground - height + feetOffset;
             velocityY = 0;
             jumping = false;
         }
@@ -49,7 +50,7 @@ public abstract class Player {
     // }
 
     public Rectangle getBounds() {
-        return new Rectangle(x + 20, y + 15, width - 40, height - 20);
+        return new Rectangle(x + 25, y + 20, width - 45, height - 35);
     }
 
     public void activateInvincible() {
@@ -76,7 +77,7 @@ public abstract class Player {
         return y;
     }
     public void resetToGround() {
-        y = ground - height;
+        y = ground - height + feetOffset;
         velocityY = 0;
         jumping = false;
     }

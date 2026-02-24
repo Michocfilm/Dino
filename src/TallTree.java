@@ -5,7 +5,7 @@ public class TallTree extends Obstacle {
     private Image image;
 
     public TallTree(int x, int y, int speed, String key) {
-        super(x, y, 80, 120, speed, key);
+        super(x, y + 10, 80, 140, speed, key);
         this.image = new ImageIcon("tall_tree.png").getImage(); 
     }
 

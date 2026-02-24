@@ -5,7 +5,7 @@ public class SmallTree extends Obstacle {
 
     private Image image;
     public SmallTree(int x, int y, int speed, String key) {
-        super(x, y, 80, 80, speed , key);
+        super(x, y + 8, 80, 80, speed , key);
         this.image = new ImageIcon("small_tree.png").getImage();
     }
 

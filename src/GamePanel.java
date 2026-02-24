@@ -62,29 +62,48 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private String targetText = "";
     private String playerInput = "";
     private String[] bossTexts = {
-            "java is fun",
-            "object oriented programming",
-            "type faster to win",
-            "dino boss fight",
-            "Satana so handsome mak mak kub"
+            "Polymorphism",
+            "Object oriented programming",
+            "Java language is fun",
+            "Dino Ninja Robot boss fight",
+            "Satana so handsome mak mak kub",
+            "Computer Architecture",
+            "Computer Ethics",
+            "Discrete Mathematics",
+            "public static void main(String[] args)",
+            //ดวงซวย
+            "FunctionalProgramming",
+            "ObjectRelationalMapping",
+            "Pneumonoultramicroscopics",
     };
     private long bossStartTime;
     private int timeLimit = 10;
-    private int nextBossScore = 15;
+    private int nextBossScore = 1;
+    private int sentensetoType = 1;
+    private int currentType = 0;
 
     private Image groundImage;
+    private Image backgroundImage;
+    private Image[] cloudImage = new Image[2];
     private int groundOffset = 0;
+    private final int NUM_CLOUD = 4;
+    private ArrayList<Integer> cloudXs = new ArrayList<>();
+    private ArrayList<Integer> cloudYs = new ArrayList<>();
+    private ArrayList<Integer> cloudType = new ArrayList<>();
 
     public GamePanel() {
 
+        backgroundImage = new ImageIcon("background.png").getImage();
         groundImage = new ImageIcon("ground.jpg").getImage();
+        cloudImage[0] = new ImageIcon("cloud1.png").getImage();
+        cloudImage[1] = new ImageIcon("cloud2.png").getImage();
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        GROUND_Y = HEIGHT - 150; // ปรับ 150 ได้ตามความหนาพื้น
+        GROUND_Y = HEIGHT - 80; // ปรับ 150 ได้ตามความหนาพื้น
 
         setBackground(Color.BLACK);
         setLayout(null);
 
-        initStars();
+        initCloud();
 
         score = new Score();
         dino = new DinoChar(100, GROUND_Y);
@@ -124,7 +143,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             spawnPowerUp();
             updatePowerUps();
             checkPowerUpCollision();
-            updateStars();
+            updateCloud();
 
             if (score.getScore() >= nextBossScore
                     && gameState == GameState.RUNNING) {
@@ -162,12 +181,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
 
             if (playerInput.equals(targetText)) {
-                gameState = GameState.RUNNING;
-                nextBossScore += 15;
-                bossY = -200;
-                obstacles.clear();
-                playerInput = "";
-                // obstaclesPassedInWave = 0;
+                currentType++;
+                if (currentType >= sentensetoType) {
+                    gameState = GameState.RUNNING;
+                    nextBossScore += 1;
+                    bossY = -200;
+                    obstacles.clear();
+                    playerInput = "";
+                    // obstaclesPassedInWave = 0;
+                } else {
+                    targetText = bossTexts[random.nextInt(bossTexts.length)];
+                    playerInput = "";
+                }
             }
         }
 
@@ -221,19 +246,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
             return;
         }
-
-        g.setColor(new Color(10, 10, 40)); // สีเทาเกือบดำ
-        g.fillRect(0, 0, WIDTH, HEIGHT);
-
-        g.setColor(Color.WHITE);
-        for (int i = 0; i < starXs.size(); i++) {
-            g.fillRect(starXs.get(i), starYs.get(i), 2, 2);
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT, null);
+        } else {
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, WIDTH, HEIGHT);
         }
-        g.setColor(new Color(255, 255, 255, 50));
-        g.fillOval(MOON_X - 10, MOON_Y - 10, MOON_SIZE + 20, MOON_SIZE + 20);
-        g.setColor(new Color(240, 240, 220));
-        g.fillOval(MOON_X, MOON_Y, MOON_SIZE, MOON_SIZE);
-
+        if (cloudImage != null) {
+            for (int i = 0; i < cloudXs.size(); i++) {
+                int type = cloudType.get(i);
+                if (cloudImage[type] != null) {
+                    g.drawImage(cloudImage[type], cloudXs.get(i), cloudYs.get(i), 500, 300, null);
+                }
+            }
+        }
         if (groundImage != null) {
 
             int imgWidth = groundImage.getWidth(null);
@@ -309,30 +335,61 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 g.fillRect(bossX, bossY, 150, 150);
             }
             if (!bossSliding) {
+                int startXs =220;
                 g.setColor(Color.WHITE);
-                g.drawString("Type this:", 300, 300);
-                if (targetText != null) {
-                    g.drawString(targetText, 300, 330);
+                g.setFont(new Font("Arial",Font.BOLD,24));
+                String titleText = "Type this: ";
+                g.drawString(titleText,startXs,280);
+
+                g.setFont(new Font("Monospaced",Font.BOLD,28));
+                FontMetrics fm = g.getFontMetrics();
+
+                int textX = startXs;
+                int textY = 330;
+                
+                for(int i = 0; i < targetText.length(); i++){
+                    char targetChar = targetText.charAt(i);
+                    String charToDraw = String.valueOf(targetChar);
+                    Color textColor;
+
+                    if(i < playerInput.length()){
+                        char inputChar = playerInput.charAt(i);
+                        if(inputChar == targetChar){
+                            textColor = Color.GREEN;
+                        }else{
+                            textColor = Color.RED;
+                            charToDraw = String.valueOf(inputChar);
+                        }
+                    }else{
+                        textColor = Color.WHITE;
+                    }
+                    g.setColor(Color.BLACK);
+                    g.drawString(charToDraw,textX + 2,textY + 2);
+
+                    g.setColor(textColor);
+                    g.drawString(charToDraw, textX, textY);
+
+                    textX += fm.stringWidth(String.valueOf(targetChar));
                 }
-                if (playerInput != null) {
-                    g.drawString(playerInput, 300, 360);
-                }
+                g.setFont(new Font("Arial",Font.BOLD,20));
+                g.setColor(Color.WHITE);
                 long elapsed = (System.currentTimeMillis() - bossStartTime) / 1000;
                 g.drawString("Time left: " + (timeLimit - elapsed), 300, 390);
+                g.setColor(Color.YELLOW);
+                g.drawString("Wave: " + (currentType + 1) + " / " + sentensetoType, 300, 420);
             }
         }
-        /*
-         * g.setColor(Color.RED);
-         * // วาดกรอบ Hitbox ของ Player
-         * Rectangle pBox = dino.getBounds();
-         * g.drawRect(pBox.x, pBox.y, pBox.width, pBox.height);
-         * 
-         * // วาดกรอบ Hitbox ของสิ่งกีดขวาง
-         * for (Obstacle obs : obstacles) {
-         * Rectangle oBox = obs.getBounds();
-         * g.drawRect(oBox.x, oBox.y, oBox.width, oBox.height);
-         * }
-         */
+
+        g.setColor(Color.RED);
+        // วาดกรอบ Hitbox ของ Player
+        Rectangle pBox = dino.getBounds();
+        g.drawRect(pBox.x, pBox.y, pBox.width, pBox.height);
+
+        // วาดกรอบ Hitbox ของสิ่งกีดขวาง
+        for (Obstacle obs : obstacles) {
+            Rectangle oBox = obs.getBounds();
+            g.drawRect(oBox.x, oBox.y, oBox.width, oBox.height);
+        }
     }
 
     private void increaseDifficulty() {
@@ -524,12 +581,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
         obstacles.clear();
         powerUps.clear();
-        initStars();
         String randomKey = possibleKeys[random.nextInt(possibleKeys.length)];
         obstacles.add(new SmallTree(800, GROUND_Y - 80, gameSpeed, randomKey));
         // Boss
         gameState = GameState.RUNNING;
-        nextBossScore = 15;
+        nextBossScore = 1;
         bossY = -200;
         playerInput = "";
 
@@ -615,7 +671,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (random.nextBoolean()) {
             return new SmallTree(x, GROUND_Y - 80, gameSpeed, key);
         } else {
-            return new TallTree(x, GROUND_Y - 120, gameSpeed, key);
+            return new TallTree(x, GROUND_Y - 140, gameSpeed, key);
         }
     }
 
@@ -649,30 +705,26 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         });
     }
 
-    private void initStars() {
-        starXs.clear();
-        starYs.clear();
-        for (int i = 0; i < NUM_STARS; i++) {
-            // สุ่มตำแหน่ง X เต็มความกว้างจอ
-            starXs.add(random.nextInt(WIDTH));
-            // สุ่มตำแหน่ง Y เฉพาะครึ่งบนของจอ (เหนือพื้นดินที่ Y=290)
-            starYs.add(random.nextInt(GROUND_Y - 20));
+    private void initCloud() {
+        cloudXs.clear();
+        cloudYs.clear();
+        cloudType.clear();
+        for (int i = 0; i < NUM_CLOUD; i++) {
+            cloudXs.add(random.nextInt(WIDTH));
+            cloudYs.add(20 + random.nextInt(60));
+            cloudType.add(random.nextInt(2));
         }
     }
 
-    private void updateStars() {
-
-        for (int i = 0; i < starXs.size(); i++) {
-
-            int newX = starXs.get(i) - (int) (gameSpeed * 0.3);
-
-            if (newX < 0) {
+    private void updateCloud() {
+        for (int i = 0; i < cloudXs.size(); i++) {
+            int newX = cloudXs.get(i) - (int) (gameSpeed * 0.2);
+            if (newX + 200 < 0) {
                 newX = WIDTH;
-                starYs.set(i, random.nextInt(GROUND_Y - 20));
-
+                cloudYs.set(i, 20 + random.nextInt(100));
+                cloudType.set(i, random.nextInt(2));
             }
-
-            starXs.set(i, newX);
+            cloudXs.set(i, newX);
         }
     }
 
@@ -698,6 +750,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private void startTypingChallenge() {
         bossStartTime = System.currentTimeMillis();
         playerInput = "";
+        sentensetoType = nextBossScore / 1;
+        currentType = 0;
+        timeLimit = 10 + ((sentensetoType - 1) * 5);
         targetText = bossTexts[random.nextInt(bossTexts.length)];
     }
 
@@ -705,13 +760,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     public void keyTyped(KeyEvent e) {
 
         if (gameState == GameState.BOSS) {
-
             char c = e.getKeyChar();
 
             if (c == '\b' && playerInput.length() > 0) {
                 playerInput = playerInput.substring(0, playerInput.length() - 1);
-            } else {
-                playerInput += c;
+            } else if (c != '\b' && c != KeyEvent.CHAR_UNDEFINED) {
+                if (targetText != null && playerInput.length() < targetText.length()) {
+                    playerInput += c;
+                }
             }
         }
     }
