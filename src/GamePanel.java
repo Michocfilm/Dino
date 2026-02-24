@@ -56,7 +56,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private boolean bossSliding = false;
     private boolean bossTriggered = false;
 
-    private String[] bossImageFiles = {"boss1.png","boss2.png","boss3.png"};
+    private String[] bossImageFiles = { "boss1.png", "boss2.png", "boss3.png" };
     private Image currentBossImage = null;
 
     private String targetText = "";
@@ -72,8 +72,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private int timeLimit = 10;
     private int nextBossScore = 15;
 
+    private Image groundImage;
+    private int groundOffset = 0;
+
     public GamePanel() {
 
+        groundImage = new ImageIcon("ground.jpg").getImage();
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         GROUND_Y = HEIGHT - 150; // ปรับ 150 ได้ตามความหนาพื้น
 
@@ -167,6 +171,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
         }
 
+        groundOffset -= gameSpeed;
+
+        if (groundOffset <= -groundImage.getWidth(null)) {
+            groundOffset = 0;
+        }
+
         repaint();
     }
 
@@ -224,14 +234,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.setColor(new Color(240, 240, 220));
         g.fillOval(MOON_X, MOON_Y, MOON_SIZE, MOON_SIZE);
 
-        g.setColor(new Color(101, 67, 33));
-        g.fillRect(0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y);
+        if (groundImage != null) {
+
+            int imgWidth = groundImage.getWidth(null);
+
+            for (int x = groundOffset; x < WIDTH; x += imgWidth) {
+                g.drawImage(groundImage, x, GROUND_Y, null);
+            }
+        }
         g.setColor(Color.WHITE);
         g.drawLine(0, GROUND_Y, WIDTH, GROUND_Y);
         dino.draw(g);
         score.draw(g);
         // DEBUG
-        g.setColor(Color.GREEN); 
+        g.setColor(Color.GREEN);
         g.setFont(new Font("Arial", Font.PLAIN, 16));
         g.drawString("Debug Speed: " + gameSpeed, 20, 30);
         if (gameOver) {
@@ -286,11 +302,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
         if (gameState == GameState.BOSS) {
 
-            if(currentBossImage != null){
-                g.drawImage(currentBossImage, bossX, bossY, 150,150,null);
-            }else{
+            if (currentBossImage != null) {
+                g.drawImage(currentBossImage, bossX, bossY, 150, 150, null);
+            } else {
                 g.setColor(Color.RED);
-                g.fillRect(bossX, bossY, 150, 150);  
+                g.fillRect(bossX, bossY, 150, 150);
             }
             if (!bossSliding) {
                 g.setColor(Color.WHITE);
@@ -305,16 +321,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 g.drawString("Time left: " + (timeLimit - elapsed), 300, 390);
             }
         }
- /*        g.setColor(Color.RED);
-        // วาดกรอบ Hitbox ของ Player
-        Rectangle pBox = dino.getBounds();
-        g.drawRect(pBox.x, pBox.y, pBox.width, pBox.height);
-        
-        // วาดกรอบ Hitbox ของสิ่งกีดขวาง
-        for (Obstacle obs : obstacles) {
-            Rectangle oBox = obs.getBounds();
-            g.drawRect(oBox.x, oBox.y, oBox.width, oBox.height);
-        } */
+        /*
+         * g.setColor(Color.RED);
+         * // วาดกรอบ Hitbox ของ Player
+         * Rectangle pBox = dino.getBounds();
+         * g.drawRect(pBox.x, pBox.y, pBox.width, pBox.height);
+         * 
+         * // วาดกรอบ Hitbox ของสิ่งกีดขวาง
+         * for (Obstacle obs : obstacles) {
+         * Rectangle oBox = obs.getBounds();
+         * g.drawRect(oBox.x, oBox.y, oBox.width, oBox.height);
+         * }
+         */
     }
 
     private void increaseDifficulty() {
