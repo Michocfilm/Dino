@@ -85,6 +85,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Image titleSelectImage;
     private Image groundImage;
     private Image backgroundImage;
+    private Image bushImage;
+    private Image homeImage;
+    private int bushOffset = 0;
+    private int bushLayerWidth =0;
+    private int bushLayerHeight = 0;
     private Image[] cloudImage = new Image[2];
     private int groundOffset = 0;
     private final int NUM_CLOUD = 4;
@@ -99,8 +104,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         groundImage = new ImageIcon("ground.jpg").getImage();
         cloudImage[0] = new ImageIcon("cloud1.png").getImage();
         cloudImage[1] = new ImageIcon("cloud2.png").getImage();
+        homeImage = new ImageIcon("home.png").getImage();
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         GROUND_Y = HEIGHT - 80; // ปรับ 150 ได้ตามความหนาพื้น
+
+        ImageIcon bushIcon = new ImageIcon("bush.png");
+        bushImage = bushIcon.getImage();
+        bushLayerHeight = 500;
+        if(bushIcon.getIconHeight() > 0){
+            bushLayerWidth = (bushIcon.getIconWidth() * bushLayerHeight) / bushIcon.getIconHeight();
+        }else{
+            bushLayerWidth = 800;
+        }
 
         setBackground(Color.BLACK);
         setLayout(null);
@@ -203,6 +218,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (groundOffset <= -groundImage.getWidth(null)) {
             groundOffset = 0;
         }
+        int bushSpeed = (int)(gameSpeed * 0.6);
+        if(bushSpeed < 1) bushSpeed = 1;
+
+        bushOffset -= bushSpeed;
+        if(bushLayerWidth > 0 && bushOffset <= -bushLayerWidth){
+            bushOffset = 0;
+        }
 
         repaint();
     }
@@ -233,8 +255,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (gameState == GameState.MENU) {
-            g.setColor(new Color(10, 10, 40));
-            g.fillRect(0, 0, WIDTH, HEIGHT);
+            if(homeImage != null){
+                g.drawImage(homeImage, 0, 0, WIDTH , HEIGHT ,null);
+            }else{
+                g.setColor(Color.BLACK);
+                g.fillRect(0,0,WIDTH,HEIGHT);
+            }
 
             int boardWidth = 450;
             int boardHeigh = 150;
@@ -280,6 +306,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 if (cloudImage[type] != null) {
                     g.drawImage(cloudImage[type], cloudXs.get(i), cloudYs.get(i), 500, 300, null);
                 }
+            }
+        }
+        if(bushImage != null && bushLayerWidth > 0){
+            for(int x = bushOffset ; x < WIDTH ; x += bushLayerWidth){
+                g.drawImage(bushImage,x,GROUND_Y - bushLayerHeight ,bushLayerWidth,bushLayerHeight,null);
             }
         }
         if (groundImage != null) {
