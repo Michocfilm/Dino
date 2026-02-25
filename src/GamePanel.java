@@ -1,12 +1,10 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Iterator;
-import java.io.File;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import java.util.Random;
+import javax.swing.*;
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Score score;
@@ -535,7 +533,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         homeButton.setVisible(false);
         add(homeButton);
 
-        ImageIcon exitIcon = new ImageIcon(new ImageIcon("exit_button.png").getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH));
+        ImageIcon exitIcon = new ImageIcon(new ImageIcon("exit_button.png").getImage().getScaledInstance(140, 40, Image.SCALE_SMOOTH));
         exitButton = new JButton(exitIcon);
         exitButton.setBounds(WIDTH / 2 - 70, HEIGHT / 2 + 110, 140, 40);
         startButton.setContentAreaFilled(false);
