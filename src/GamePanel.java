@@ -738,7 +738,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (random.nextBoolean()) {
             return new SmallTree(x, GROUND_Y - 80, gameSpeed, key);
         } else {
-            return new TallTree(x, GROUND_Y - 140, gameSpeed, key);
+            return new TallTree(x, GROUND_Y - 120, gameSpeed, key);
         }
     }
 
