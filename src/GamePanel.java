@@ -121,7 +121,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         initCloud();
 
         score = new Score();
-        dino = new DinoChar(100, GROUND_Y);
+        dino = new DefaultChar(100, GROUND_Y, "dino.png");
 
         obstacles = new ArrayList<>();
 
