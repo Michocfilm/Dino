@@ -64,7 +64,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             "Object oriented programming",
             "Java language is fun",
             "Dino Ninja Robot boss fight",
-            "Satana so handsome mak mak kub",
+            "Santana so handsome mak mak kub",
             "Computer Architecture",
             "Computer Ethics",
             "Discrete Mathematics",
