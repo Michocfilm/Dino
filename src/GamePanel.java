@@ -326,7 +326,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // DEBUG
         g.setColor(Color.GREEN);
         g.setFont(new Font("Comic Sans MS", Font.PLAIN, 16));
-        g.drawString("Debug Speed: " + gameSpeed, 20, 30);
+        g.drawString("Speed: " + gameSpeed, 20, 30);
         if (gameOver) {
             g.setColor(Color.WHITE);
             Font font = new Font("Comic Sans MS", Font.BOLD, 60);
