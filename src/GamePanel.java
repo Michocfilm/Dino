@@ -78,10 +78,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     };
     private long bossStartTime;
     private int timeLimit = 10;
-    private int nextBossScore = 1;
+    private int nextBossScore = 10;
     private int sentensetoType = 1;
     private int currentType = 0;
 
+    private Image titleSelectImage;
     private Image groundImage;
     private Image backgroundImage;
     private Image[] cloudImage = new Image[2];
@@ -93,6 +94,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     public GamePanel() {
 
+        titleSelectImage = new ImageIcon("title_select.png").getImage();
         backgroundImage = new ImageIcon("background.png").getImage();
         groundImage = new ImageIcon("ground.jpg").getImage();
         cloudImage[0] = new ImageIcon("cloud1.png").getImage();
@@ -184,7 +186,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 currentType++;
                 if (currentType >= sentensetoType) {
                     gameState = GameState.RUNNING;
-                    nextBossScore += 1;
+                    nextBossScore += 10;
                     bossY = -200;
                     obstacles.clear();
                     playerInput = "";
@@ -234,12 +236,32 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             g.setColor(new Color(10, 10, 40));
             g.fillRect(0, 0, WIDTH, HEIGHT);
 
+            int boardWidth = 450;
+            int boardHeigh = 150;
+            int boardX = (WIDTH - boardWidth) / 2;
+            int boardY = HEIGHT / 2 - 230;
+            if(titleSelectImage != null){
+                g.drawImage(titleSelectImage, boardX, boardY, boardWidth,boardHeigh - 30,null);
+            }else{
+                g.setColor(Color.WHITE);
+                g.fillRoundRect(boardX, boardY, boardWidth, boardHeigh,20,20);
+            }
             g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 40));
-            g.drawString("SELECT CHARACTER", WIDTH / 2 - 200, HEIGHT / 2 - 120);
+            g.setFont(new Font("Comic Sans MS",Font.BOLD,38));
+            String titleText = "SELECT CHARACTER";
+            FontMetrics fm = g.getFontMetrics();
+            int titleWidth = fm.stringWidth(titleText);
+
+            int titleX = boardX + (boardWidth - titleWidth)/2;
+            int titleY = boardY + 75;
+            
+            g.setColor(Color.BLACK);
+            g.drawString(titleText,titleX + 2,titleY + 2);
+            g.setColor(Color.WHITE);
+            g.drawString(titleText,titleX,titleY);
 
             String[] charNames = { "Classic Dino", "Robot", "Ninja", "Custom Image" };
-            g.setFont(new Font("Arial", Font.BOLD, 24));
+            g.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
             String name = charNames[selectedChar];
             int nameWidth = g.getFontMetrics().stringWidth(name);
             g.drawString(name, WIDTH / 2 - (nameWidth / 2), HEIGHT / 2);
@@ -274,11 +296,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         score.draw(g);
         // DEBUG
         g.setColor(Color.GREEN);
-        g.setFont(new Font("Arial", Font.PLAIN, 16));
+        g.setFont(new Font("Comic Sans MS", Font.PLAIN, 16));
         g.drawString("Debug Speed: " + gameSpeed, 20, 30);
         if (gameOver) {
             g.setColor(Color.WHITE);
-            Font font = new Font("Arial", Font.BOLD, 60);
+            Font font = new Font("Comic Sans MS", Font.BOLD, 60);
             g.setFont(font);
 
             String text = "GAME OVER";
@@ -297,7 +319,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         for (Obstacle obs : obstacles) {
             if (!obs.getRequiredKey().equals("SPACE")) {
                 g.setColor(Color.YELLOW);
-                g.setFont(new Font("Arial", Font.BOLD, 30));
+                g.setFont(new Font("Comic Sans MS", Font.BOLD, 30));
 
                 int textX = obs.getX() + 20;
                 int textY = obs.getY() - 15;
@@ -323,7 +345,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             g.setColor(Color.YELLOW);
             g.fillRect(x + 1, y + 1, currentBarWidth - 1, barHeight - 1);
 
-            g.setFont(new Font("Arial", Font.BOLD, 12));
+            g.setFont(new Font("Comic Sans MS", Font.BOLD, 12));
             g.drawString("INVINCIBLE", x, y - 5);
         }
         if (gameState == GameState.BOSS) {
@@ -337,11 +359,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             if (!bossSliding) {
                 int startXs =220;
                 g.setColor(Color.WHITE);
-                g.setFont(new Font("Arial",Font.BOLD,24));
+                g.setFont(new Font("Comic Sans MS",Font.BOLD,24));
                 String titleText = "Type this: ";
                 g.drawString(titleText,startXs,280);
 
-                g.setFont(new Font("Monospaced",Font.BOLD,28));
+                g.setFont(new Font("Consolas",Font.BOLD,28));
                 FontMetrics fm = g.getFontMetrics();
 
                 int textX = startXs;
@@ -371,7 +393,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
                     textX += fm.stringWidth(String.valueOf(targetChar));
                 }
-                g.setFont(new Font("Arial",Font.BOLD,20));
+                g.setFont(new Font("Comic Sans MS",Font.BOLD,20));
                 g.setColor(Color.WHITE);
                 long elapsed = (System.currentTimeMillis() - bossStartTime) / 1000;
                 g.drawString("Time left: " + (timeLimit - elapsed), 300, 390);
@@ -454,9 +476,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     private void createButtons() {
 
-        startButton = new JButton("START");
-        startButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 80, 100, 40);
+        ImageIcon startIcon = new ImageIcon(new ImageIcon("start_button.png").getImage().getScaledInstance(150, 60, Image.SCALE_SMOOTH));
+        startButton = new JButton(startIcon);
+        startButton.setBounds(WIDTH / 2 - 75,HEIGHT / 2 + 80,150,60);
+        startButton.setContentAreaFilled(false);
+        startButton.setFocusPainted(false);
+        startButton.setBorderPainted(false);
         add(startButton);
+        startButton.addActionListener(e -> startGame());
 
         restartButton = new JButton("RESTART");
         restartButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 10, 100, 40);
@@ -473,26 +500,35 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         exitButton.setVisible(false);
         add(exitButton);
 
-        startButton.addActionListener(e -> startGame());
         restartButton.addActionListener(e -> restartGame());
         exitButton.addActionListener(e -> System.exit(0));
 
-        prevBtn = new JButton("<");
-        prevBtn.setBounds(WIDTH / 2 - 150, HEIGHT / 2 - 30, 50, 40);
+        ImageIcon leftIcon = new ImageIcon(new ImageIcon("left_button.png").getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH));
+        prevBtn = new JButton(leftIcon);
+        prevBtn.setBounds(WIDTH / 2 - 130, HEIGHT / 2 - 30, 50, 50);
+        prevBtn.setContentAreaFilled(false);
+        prevBtn.setFocusPainted(false);
+        prevBtn.setBorderPainted(false);
         prevBtn.addActionListener(e -> {
             selectedChar = (selectedChar - 1 + 4) % 4;
             updateBrowseButtonVisibility();
             repaint();
         });
         add(prevBtn);
-        nextBtn = new JButton(">");
-        nextBtn.setBounds(WIDTH / 2 + 100, HEIGHT / 2 - 30, 50, 40);
+
+        ImageIcon rightIcon = new ImageIcon(new ImageIcon("right_button.png").getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH));
+        nextBtn = new JButton(rightIcon);
+        nextBtn.setBounds(WIDTH / 2 + 80, HEIGHT / 2 - 30, 50, 50);
+        nextBtn.setContentAreaFilled(false);
+        nextBtn.setFocusPainted(false);
+        nextBtn.setBorderPainted(false);
         nextBtn.addActionListener(e -> {
             selectedChar = (selectedChar + 1) % 4;
             updateBrowseButtonVisibility();
             repaint();
         });
         add(nextBtn);
+
         browseButton = new JButton("Choose Image");
         browseButton.setBounds(WIDTH / 2 - 60, HEIGHT / 2 + 140, 120, 30);
         browseButton.setVisible(false);
@@ -585,7 +621,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         obstacles.add(new SmallTree(800, GROUND_Y - 80, gameSpeed, randomKey));
         // Boss
         gameState = GameState.RUNNING;
-        nextBossScore = 1;
+        nextBossScore = 10;
         bossY = -200;
         playerInput = "";
 
@@ -750,7 +786,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private void startTypingChallenge() {
         bossStartTime = System.currentTimeMillis();
         playerInput = "";
-        sentensetoType = nextBossScore / 1;
+        sentensetoType = nextBossScore / 10;
         currentType = 0;
         timeLimit = 10 + ((sentensetoType - 1) * 5);
         targetText = bossTexts[random.nextInt(bossTexts.length)];
