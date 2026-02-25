@@ -516,22 +516,34 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         add(startButton);
         startButton.addActionListener(e -> startGame());
 
-        restartButton = new JButton("RESTART");
-        restartButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 10, 100, 40);
+        ImageIcon restartIcon = new ImageIcon(new ImageIcon("restart_button.png").getImage().getScaledInstance(140, 40, Image.SCALE_SMOOTH));
+        restartButton = new JButton(restartIcon);
+        restartButton.setBounds(WIDTH / 2 - 70, HEIGHT / 2 + 10, 140, 40);
+        startButton.setContentAreaFilled(false);
+        startButton.setFocusPainted(false);
+        startButton.setBorderPainted(false);
         restartButton.setVisible(false);
         add(restartButton);
+        restartButton.addActionListener(e -> restartGame());
 
-        homeButton = new JButton("HOME");
-        homeButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 60, 100, 40);
+        ImageIcon homeIcon = new ImageIcon(new ImageIcon("home_button.png").getImage().getScaledInstance(140, 40, Image.SCALE_SMOOTH));
+        homeButton = new JButton(homeIcon);
+        homeButton.setBounds(WIDTH / 2 - 70, HEIGHT / 2 + 60, 140, 40);
+        startButton.setContentAreaFilled(false);
+        startButton.setFocusPainted(false);
+        startButton.setBorderPainted(false);
         homeButton.setVisible(false);
         add(homeButton);
 
-        exitButton = new JButton("EXIT");
-        exitButton.setBounds(WIDTH / 2 - 50, HEIGHT / 2 + 110, 100, 40);
+        ImageIcon exitIcon = new ImageIcon(new ImageIcon("exit_button.png").getImage().getScaledInstance(140, 140, Image.SCALE_SMOOTH));
+        exitButton = new JButton(exitIcon);
+        exitButton.setBounds(WIDTH / 2 - 70, HEIGHT / 2 + 110, 140, 40);
+        startButton.setContentAreaFilled(false);
+        startButton.setFocusPainted(false);
+        startButton.setBorderPainted(false);
         exitButton.setVisible(false);
         add(exitButton);
 
-        restartButton.addActionListener(e -> restartGame());
         exitButton.addActionListener(e -> System.exit(0));
 
         ImageIcon leftIcon = new ImageIcon(new ImageIcon("left_button.png").getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH));
@@ -738,7 +750,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (random.nextBoolean()) {
             return new SmallTree(x, GROUND_Y - 80, gameSpeed, key);
         } else {
-            return new TallTree(x, GROUND_Y - 140, gameSpeed, key);
+            return new TallTree(x, GROUND_Y - 120, gameSpeed, key);
         }
     }
 
