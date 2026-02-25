@@ -421,16 +421,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
         }
 
-        g.setColor(Color.RED);
-        // วาดกรอบ Hitbox ของ Player
-        Rectangle pBox = dino.getBounds();
-        g.drawRect(pBox.x, pBox.y, pBox.width, pBox.height);
+        // g.setColor(Color.RED);
+        // // วาดกรอบ Hitbox ของ Player
+        // Rectangle pBox = dino.getBounds();
+        // g.drawRect(pBox.x, pBox.y, pBox.width, pBox.height);
 
-        // วาดกรอบ Hitbox ของสิ่งกีดขวาง
-        for (Obstacle obs : obstacles) {
-            Rectangle oBox = obs.getBounds();
-            g.drawRect(oBox.x, oBox.y, oBox.width, oBox.height);
-        }
+        // // วาดกรอบ Hitbox ของสิ่งกีดขวาง
+        // for (Obstacle obs : obstacles) {
+        //     Rectangle oBox = obs.getBounds();
+        //     g.drawRect(oBox.x, oBox.y, oBox.width, oBox.height);
+        // }
     }
 
     private void increaseDifficulty() {

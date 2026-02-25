@@ -10,6 +10,7 @@ public class GameFrame extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
+        setIconImage(new ImageIcon("icon.png").getImage());
     }
 
     public static void main(String[] args) {
