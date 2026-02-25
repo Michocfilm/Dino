@@ -517,28 +517,29 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         ImageIcon restartIcon = new ImageIcon(new ImageIcon("restart_button.png").getImage().getScaledInstance(140, 40, Image.SCALE_SMOOTH));
         restartButton = new JButton(restartIcon);
         restartButton.setBounds(WIDTH / 2 - 70, HEIGHT / 2 + 10, 140, 40);
-        startButton.setContentAreaFilled(false);
-        startButton.setFocusPainted(false);
-        startButton.setBorderPainted(false);
+        restartButton.setContentAreaFilled(false);
+        restartButton.setFocusPainted(false);
+        restartButton.setBorderPainted(false);
         restartButton.setVisible(false);
+        
         add(restartButton);
         restartButton.addActionListener(e -> restartGame());
 
         ImageIcon homeIcon = new ImageIcon(new ImageIcon("home_button.png").getImage().getScaledInstance(140, 40, Image.SCALE_SMOOTH));
         homeButton = new JButton(homeIcon);
         homeButton.setBounds(WIDTH / 2 - 70, HEIGHT / 2 + 60, 140, 40);
-        startButton.setContentAreaFilled(false);
-        startButton.setFocusPainted(false);
-        startButton.setBorderPainted(false);
+        homeButton.setContentAreaFilled(false);
+        homeButton.setFocusPainted(false);
+        homeButton.setBorderPainted(false);
         homeButton.setVisible(false);
         add(homeButton);
 
         ImageIcon exitIcon = new ImageIcon(new ImageIcon("exit_button.png").getImage().getScaledInstance(140, 40, Image.SCALE_SMOOTH));
         exitButton = new JButton(exitIcon);
         exitButton.setBounds(WIDTH / 2 - 70, HEIGHT / 2 + 110, 140, 40);
-        startButton.setContentAreaFilled(false);
-        startButton.setFocusPainted(false);
-        startButton.setBorderPainted(false);
+        exitButton.setContentAreaFilled(false);
+        exitButton.setFocusPainted(false);
+        exitButton.setBorderPainted(false);
         exitButton.setVisible(false);
         add(exitButton);
 
