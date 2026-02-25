@@ -39,16 +39,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private JButton browseButton;
     private JButton homeButton;
 
-    // --- ส่วนของฉากหลัง (Sky Elements) ---
-    private final int MOON_X = 650; // ตำแหน่ง X พระจันทร์ (ขวาบน)
-    private final int MOON_Y = 50; // ตำแหน่ง Y พระจันทร์
-    private final int MOON_SIZE = 80; // ขนาดพระจันทร์
-
-    // ใช้ ArrayList เก็บพิกัด X และ Y ของดาวแต่ละดวง
-    private ArrayList<Integer> starXs = new ArrayList<>();
-    private ArrayList<Integer> starYs = new ArrayList<>();
-    private final int NUM_STARS = 100; // จำนวนดาวที่ต้องการ
-
     private int bossX = 400;
     private int bossY = -200;
     private boolean bossSliding = false;
