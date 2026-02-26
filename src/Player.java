@@ -1,17 +1,21 @@
 import java.awt.*;
 
 public abstract class Player { // สำหรับให้ class อื่นสืบทอดคุณสมบัติไปใช้งาน
-    protected boolean invincible = false;
-    protected long invincibleEndTime = 0;
+    // ตำแหน่งและขนาด
     protected int x, y;
     protected int width = 90;
     protected int height = 90;
+    // การกระโดด
     protected int velocityY = 0;
     protected boolean jumping = false;
     protected final int gravity = 1;
     protected int ground;
+    // ตัวละคร
     protected Image image;
     protected int feetOffset = 15;
+    // ระบบอมตะ
+    protected boolean invincible = false;
+    protected long invincibleEndTime = 0;
 
     public Player(int x, int groundY) {
         this.x = x;
@@ -45,6 +49,7 @@ public abstract class Player { // สำหรับให้ class อื่น
         return new Rectangle(x + 25, y + 20, width - 45, height - 35);
     }
 
+    // เปิดโหมดอมตะ
     public void activateInvincible() {
         invincible = true;
         invincibleEndTime = System.currentTimeMillis() + 3000; // 3 วิ
