@@ -1,18 +1,15 @@
 import java.awt.*;
 
-public abstract class Player {
+public abstract class Player { // สำหรับให้ class อื่นสืบทอดคุณสมบัติไปใช้งาน
     protected boolean invincible = false;
     protected long invincibleEndTime = 0;
-
     protected int x, y;
     protected int width = 90;
     protected int height = 90;
-
     protected int velocityY = 0;
     protected boolean jumping = false;
     protected final int gravity = 1;
     protected int ground;
-
     protected Image image;
     protected int feetOffset = 15;
 
@@ -43,11 +40,6 @@ public abstract class Player {
             invincible = false;
         }
     }
-
-    // public void draw(Graphics g) {
-    // g.setColor(Color.GRAY);
-    // g.fillRect(x, y, width, height);
-    // }
 
     public Rectangle getBounds() {
         return new Rectangle(x + 25, y + 20, width - 45, height - 35);

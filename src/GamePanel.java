@@ -10,6 +10,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Score score;
     private int gameSpeed = 5;
     private int clusterCount = 0;
+    private Player dino; //เก็บตัวละครที่เลือก
+    private ArrayList<Obstacle> obstacles; // เก็บ list ของต้นไม้
     private String currentJumpKey = "SPACE";
     private String[] possibleKeys = { "W", "A", "S", "D", "SPACE" };
 
@@ -25,8 +27,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private ArrayList<PowerUp> powerUps = new ArrayList<>();
 
     private Timer timer;
-    private Player dino;
-    private ArrayList<Obstacle> obstacles;
+    
+    
     private Random random = new Random();
 
     private int selectedChar = 0;
@@ -93,7 +95,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         cloudImage[0] = new ImageIcon("cloud1.png").getImage();
         cloudImage[1] = new ImageIcon("cloud2.png").getImage();
         homeImage = new ImageIcon("home.png").getImage();
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setPreferredSize(new Dimension(WIDTH, HEIGHT)); // ขนาดหน้าต่าง
         GROUND_Y = HEIGHT - 80; // ปรับ 150 ได้ตามความหนาพื้น
 
         ImageIcon bushIcon = new ImageIcon("bush.png");
@@ -117,9 +119,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         createButtons();
 
-        timer = new Timer(16, this);
+        timer = new Timer(16, this); // time
 
-        // 🔥 bind ทุกปุ่มที่ใช้ได้
+        // bind เพื่อให้กดได้เฉพาะ key ที่ต้องการ
         for (String key : possibleKeys) {
             bindKey(key);
         }
@@ -130,6 +132,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);
     }
 
+    // ส่วนของ game loop 
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -193,7 +196,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                     bossY = -200;
                     obstacles.clear();
                     playerInput = "";
-                    // obstaclesPassedInWave = 0;
                 } else {
                     targetText = bossTexts[random.nextInt(bossTexts.length)];
                     playerInput = "";
@@ -217,6 +219,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         repaint();
     }
 
+    // เลื่อนต้นไม้ไปทางซ้าย
     private void updateObstacles() {
 
         Iterator<Obstacle> it = obstacles.iterator();
@@ -226,11 +229,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             obs.update();
 
             if (obs.getX() + obs.getWidth() < 0) {
-                it.remove(); // 🔥 ลบต้นที่ออกจอแล้ว
+                it.remove(); // ลบต้นที่ผ่านไปแล้ว
             }
         }
     }
 
+    // เช็คการชน
     private void checkCollision() {
         for (Obstacle obs : obstacles) {
             if (!dino.isInvincible() && dino.getBounds().intersects(obs.getBounds())) {
@@ -239,6 +243,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+    //ส่วนของการวาดทั้งหมด
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -421,6 +426,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
         }
 
+        /* สำหรับ debug การชน */
         // g.setColor(Color.RED);
         // // วาดกรอบ Hitbox ของ Player
         // Rectangle pBox = dino.getBounds();
@@ -433,6 +439,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // }
     }
 
+    // เพื่อความเร็วตาม score limit ที่ 18
     private void increaseDifficulty() {
         gameSpeed = 5 + (score.getScore() / 15);
 
@@ -445,8 +452,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+    // สร้างต้นไม้
     private void spawnObstacle() {
-        // 🔴 หยุด spawn ถ้าไม่ใช่ RUNNING
+        // หยุด spawn ถ้าไม่ใช่ RUNNING
         if (gameState != GameState.RUNNING)
             return;
 
@@ -460,13 +468,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         Obstacle last = obstacles.get(obstacles.size() - 1);
 
-        // รอให้ตัวสุดท้ายเข้ามาในจอก่อน
+        // รอให้ต้นสุดท้ายเข้ามาในจอก่อน
         if (last.getX() > WIDTH - 250)
             return;
 
         int gap;
 
-        // 🔴 ถ้าอยู่ในช่วง cluster (ถี่)
         if (clusterCount > 0) {
             gap = 100 + random.nextInt(40); // ใกล้ ๆ
             clusterCount--;
@@ -475,14 +482,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             int mode = random.nextInt(5);
 
             if (mode == 0) {
-                // 🔵 เว้นยาว
+                // เว้นยาว
                 gap = 350 + random.nextInt(150);
             } else if (mode <= 2) {
-                // 🔴 เริ่ม cluster 2-3 อัน
+                // เริ่มมาถี่ๆ 2-3 อัน
                 clusterCount = 2 + random.nextInt(2);
                 gap = 110 + random.nextInt(40);
             } else {
-                // 🟢 ปกติ
+                // ปกติ
                 gap = 180 + random.nextInt(120);
             }
         }
@@ -568,13 +575,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
             JFileChooser chooser = new JFileChooser();
 
-            // ✅ กรองเฉพาะไฟล์ภาพ
+            // กรองเฉพาะไฟล์ .png .jpg .jpeg
             javax.swing.filechooser.FileNameExtensionFilter filter = new javax.swing.filechooser.FileNameExtensionFilter(
                     "Image Files (*.png, *.jpg, *.jpeg)",
                     "png", "jpg", "jpeg");
 
             chooser.setFileFilter(filter);
-            chooser.setAcceptAllFileFilterUsed(false); // ❌ ไม่ให้เลือก All Files
+            chooser.setAcceptAllFileFilterUsed(false); // ไม่ให้เลือก All Files
 
             int result = chooser.showOpenDialog(this);
 
@@ -583,7 +590,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 File selectedFile = chooser.getSelectedFile();
                 String name = selectedFile.getName().toLowerCase();
 
-                // 🔒 เช็คซ้ำอีกรอบกันนามสกุลปลอม
+                // เช็คซ้ำอีกรอบกันนามสกุลปลอม
                 if (!(name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg"))) {
                     JOptionPane.showMessageDialog(this,
                             "Please select a valid image file (.png, .jpg, .jpeg)",
@@ -641,7 +648,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private void restartGame() {
 
         score = new Score();
-        // dino = new DinoChar(100, GROUND_Y);
         if (selectedChar < 3) {
             dino = new DefaultChar(100, GROUND_Y, charFiles[selectedChar]);
         } else {
@@ -713,15 +719,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
-    // private void addNewObstacle() {
-
-    // if (random.nextBoolean()) {
-    // obstacles.add(new SmallCactus(800, 250, gameSpeed));
-    // } else {
-    // obstacles.add(new TallCactus(800));
-    // }
-    // }
-
+    // การเช็คและเพิ่ม score โดยเรียกใช้ method จาก class Score
     private void updateScoreFromObstacles() {
 
         for (Obstacle obs : obstacles) {
@@ -735,6 +733,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+    // สุ่มสร้างต้นไม้สูงหรือเตี้ย
     private Obstacle createRandomObstacle(int x, String key) {
         if (random.nextBoolean()) {
             return new SmallTree(x, GROUND_Y - 80, gameSpeed, key);
@@ -773,6 +772,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         });
     }
 
+    // ระบบเมฆ
     private void initCloud() {
         cloudXs.clear();
         cloudYs.clear();
@@ -784,6 +784,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
+    // เลื่อนเมฆไปทางซ้าย
     private void updateCloud() {
         for (int i = 0; i < cloudXs.size(); i++) {
             int newX = cloudXs.get(i) - (int) (gameSpeed * 0.2);
@@ -796,16 +797,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    enum GameState {
+    enum GameState { // จะมี 5 สถานะคือ 1.menu 2.กำลังเล่น 3.รอเจอบอส 4.เจอบอส 5.gameover
         MENU,
         RUNNING,
+        PRE_BOSS,
         BOSS,
-        GAME_OVER,
-        PRE_BOSS
+        GAME_OVER
+        
     }
 
-    private GameState gameState = GameState.MENU;
+    private GameState gameState = GameState.MENU; // mode boss
 
+    // boss
     private void startBossFight() {
         gameState = GameState.BOSS;
         bossSliding = true;
@@ -815,6 +818,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         currentBossImage = new ImageIcon(randomBossFile).getImage();
     }
 
+    // การสุ่มคำจาก list bossTexts
     private void startTypingChallenge() {
         bossStartTime = System.currentTimeMillis();
         playerInput = "";
@@ -848,6 +852,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     public void keyReleased(KeyEvent e) {
     }
 
+    // เมื่อแพ้
     private void triggerGameOver() {
         gameState = GameState.GAME_OVER;
         gameOver = true;
@@ -859,6 +864,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     }
 
+    // กลับหน้า home ที่สามารถเลือกตัวละครได้
     private void goToMenu() {
 
         gameState = GameState.MENU;
